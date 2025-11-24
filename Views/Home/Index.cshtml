@@ -1,0 +1,374 @@
+﻿@{
+    ViewData["Title"] = "AI Resume Builder";
+}
+
+<div class="container-fluid px-0">
+    <!-- Hero Section -->
+    <div class="mt-4">
+    @if (User.Identity.IsAuthenticated)
+    {
+        <a href="#templates" class="btn btn-light btn-lg me-3 px-4 py-2 fw-bold">
+            🎨 Create Resume
+        </a>
+    }
+    else
+    {
+        <a href="@Url.Action("Login", "Account")" class="btn btn-light btn-lg me-3 px-4 py-2 fw-bold">
+            🎨 Create Resume
+        </a>
+    }
+    <a href="@Url.Action("Index", "AIAnalysis")" class="btn btn-outline-light btn-lg px-4 py-2 fw-bold">
+        🤖 Analyze Resume
+    </a>
+</div><div class="hero-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 80px 0;">
+        <div class="container">
+            <div class="text-center">
+                <h1 class="display-4 fw-bold mb-3">🚀 AI Resume Builder</h1>
+                <p class="lead mb-4" style="font-size: 1.3rem; opacity: 0.95;">
+                    Create <span class="fw-bold">professional resumes</span> with AI-powered analysis and optimization
+                </p>
+                <div class="mt-4">
+                    <a href="#templates" class="btn btn-light btn-lg me-3 px-4 py-2 fw-bold">
+                        🎨 Create Resume
+                    </a>
+                    <a href="@Url.Action("Index", "AIAnalysis")" class="btn btn-outline-light btn-lg px-4 py-2 fw-bold">
+                        🤖 Analyze Resume
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Section -->
+    <div class="container py-5">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="action-card bg-gradient-primary text-white rounded-4 p-4 h-100">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-4">
+                            <div class="action-icon" style="font-size: 3.5rem;">🚀</div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h4 class="fw-bold mb-2">Create New Resume</h4>
+                            <p class="mb-3 opacity-90">Choose from stunning professional templates</p>
+                            <a href="#templates" class="btn btn-light btn-lg fw-bold px-4">
+                                Get Started
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="action-card bg-gradient-success text-white rounded-4 p-4 h-100">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-4">
+                            <div class="action-icon" style="font-size: 3.5rem;">🤖</div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h4 class="fw-bold mb-2">AI Resume Analysis</h4>
+                            <p class="mb-3 opacity-90">Get instant feedback on your existing resume</p>
+                            <a href="@Url.Action("Index", "AIAnalysis")" class="btn btn-light btn-lg fw-bold px-4">
+                                Analyze Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates Section -->
+  <!-- Templates Section - Only show when user is logged in -->
+@if (User.Identity.IsAuthenticated)
+{
+    <div id="templates" class="container py-5" style="background: #f8f9fa;">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3" style="color: #2c3e50;">🎨 Choose Your Template</h2>
+            <p class="lead text-muted">Select from our professionally designed resume templates</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="template-card card border-0 shadow-lg h-100 rounded-4 overflow-hidden">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); height: 200px; display: flex; align-items: center; justify-content: center;">
+                        <div class="text-white text-center">
+                            <div style="font-size: 3rem;">💼</div>
+                            <h5 class="mt-2 mb-0">Professional</h5>
+                        </div>
+                    </div>
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title fw-bold mb-2">Professional</h5>
+                        <p class="card-text text-muted mb-4">Clean corporate style for traditional industries</p>
+                        <a href="@Url.Action("Create", "ProfessionalResume")" class="btn btn-primary btn-lg w-100 fw-bold">
+                            Choose Template
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="template-card card border-0 shadow-lg h-100 rounded-4 overflow-hidden">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%); height: 200px; display: flex; align-items: center; justify-content: center;">
+                        <div class="text-white text-center">
+                            <div style="font-size: 3rem;">📜</div>
+                            <h5 class="mt-2 mb-0">Classic</h5>
+                        </div>
+                    </div>
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title fw-bold mb-2">Classic</h5>
+                        <p class="card-text text-muted mb-4">Traditional layout for formal positions</p>
+                        <a href="@Url.Action("Create", "ClassicResume")" class="btn btn-primary btn-lg w-100 fw-bold">
+                            Choose Template
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="template-card card border-0 shadow-lg h-100 rounded-4 overflow-hidden">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 200px; display: flex; align-items: center; justify-content: center;">
+                        <div class="text-white text-center">
+                            <div style="font-size: 3rem;">✨</div>
+                            <h5 class="mt-2 mb-0">Modern</h5>
+                        </div>
+                    </div>
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title fw-bold mb-2">Modern</h5>
+                        <p class="card-text text-muted mb-4">Creative design for tech and creative industries</p>
+                        <a href="@Url.Action("Create", "ModernResume")" class="btn btn-primary btn-lg w-100 fw-bold">
+                            Choose Template
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Show login prompt instead of templates -->
+    <div id="templates" class="container py-5" style="background: #f8f9fa;">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3" style="color: #2c3e50;">🎨 Ready to Create Your Resume?</h2>
+            <p class="lead text-muted">Login to access our professional resume templates</p>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-lg rounded-4">
+                    <div class="card-body text-center p-5">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">🔒</div>
+                        <h4 class="fw-bold mb-3">Login Required</h4>
+                        <p class="text-muted mb-4">Please login to access our professional resume templates and start building your perfect resume.</p>
+                        <div class="d-grid gap-3">
+                            <a href="@Url.Action("Login", "Account")" class="btn btn-primary btn-lg fw-bold">
+                                Login to Get Started
+                            </a>
+                            <a href="@Url.Action("Register", "Account")" class="btn btn-outline-primary btn-lg fw-bold">
+                                Create New Account
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+    <!-- Features Section -->
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3" style="color: #2c3e50;">🌟 Why Choose AI Resume Builder?</h2>
+            <p class="lead text-muted">Powerful features to help you land your dream job</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card text-center p-4 rounded-4 border-0 shadow-sm h-100">
+                    <div class="feature-icon mb-3" style="font-size: 3rem; color: #667eea;">🤖</div>
+                    <h5 class="fw-bold mb-3">AI-Powered Analysis</h5>
+                    <p class="text-muted mb-0">Get instant feedback and improvement suggestions from our advanced AI</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card text-center p-4 rounded-4 border-0 shadow-sm h-100">
+                    <div class="feature-icon mb-3" style="font-size: 3rem; color: #28a745;">📄</div>
+                    <h5 class="fw-bold mb-3">Multiple Formats</h5>
+                    <p class="text-muted mb-0">Export to PDF, Word, HTML with one click. Perfect for any application</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card text-center p-4 rounded-4 border-0 shadow-sm h-100">
+                    <div class="feature-icon mb-3" style="font-size: 3rem; color: #ff6b6b;">🎨</div>
+                    <h5 class="fw-bold mb-3">Professional Templates</h5>
+                    <p class="text-muted mb-0">Choose from carefully designed, ATS-friendly templates</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card text-center p-4 rounded-4 border-0 shadow-sm h-100">
+                    <div class="feature-icon mb-3" style="font-size: 3rem; color: #f39c12;">⚡</div>
+                    <h5 class="fw-bold mb-3">Quick & Easy</h5>
+                    <p class="text-muted mb-0">Create a professional resume in minutes, not hours</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="container py-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3" style="color: #2c3e50;">📋 How It Works</h2>
+            <p class="lead text-muted">Create your perfect resume in 4 simple steps</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center p-4 rounded-4 bg-white shadow-sm h-100">
+                    <div class="step-number bg-primary text-white rounded-circle mx-auto mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold;">1</div>
+                    <h5 class="fw-bold mb-3">Create or Upload</h5>
+                    <p class="text-muted mb-0">Start fresh or upload your existing resume for AI analysis</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center p-4 rounded-4 bg-white shadow-sm h-100">
+                    <div class="step-number bg-success text-white rounded-circle mx-auto mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold;">2</div>
+                    <h5 class="fw-bold mb-3">AI Analysis</h5>
+                    <p class="text-muted mb-0">Get instant feedback, score, and improvement suggestions</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center p-4 rounded-4 bg-white shadow-sm h-100">
+                    <div class="step-number bg-warning text-white rounded-circle mx-auto mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold;">3</div>
+                    <h5 class="fw-bold mb-3">Choose Template</h5>
+                    <p class="text-muted mb-0">Select from our professionally designed templates</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center p-4 rounded-4 bg-white shadow-sm h-100">
+                    <div class="step-number bg-info text-white rounded-circle mx-auto mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold;">4</div>
+                    <h5 class="fw-bold mb-3">Download & Share</h5>
+                    <p class="text-muted mb-0">Export in multiple formats and share with employers</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final CTA Section -->
+    <div class="container py-5">
+        <div class="cta-section rounded-4 p-5 text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h2 class="fw-bold mb-3">Ready to Create Your Perfect Resume?</h2>
+            <p class="lead mb-4 opacity-90">Join thousands of successful job seekers who landed their dream jobs</p>
+            <div class="mt-4">
+                <a href="@Url.Action("Index", "AIAnalysis")" class="btn btn-light btn-lg me-3 px-4 py-2 fw-bold">
+                    🤖 Analyze My Resume
+                </a>
+                <a href="#templates" class="btn btn-outline-light btn-lg px-4 py-2 fw-bold">
+                    🚀 Create New Resume
+                </a>
+            </div>
+            <div class="mt-4">
+                <small class="opacity-75">⭐ Trusted by 10,000+ job seekers worldwide</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Card hover effects */
+    .template-card, .feature-card, .step-card, .action-card {
+        transition: all 0.3s ease-in-out;
+    }
+
+    .template-card:hover, .feature-card:hover, .step-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
+    }
+
+    /* Gradient backgrounds */
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+    }
+
+    /* Button hover effects */
+    .btn {
+        transition: all 0.3s ease-in-out;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Hero section styling */
+    .hero-section {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+        background-size: 20px 20px;
+        animation: float 20s infinite linear;
+    }
+
+    @@keyframes float {
+        0% { transform: translate(0, 0) rotate(0deg); }
+        100% { transform: translate(-50px, -50px) rotate(360deg); }
+    }
+
+    /* Feature icons */
+    .feature-icon {
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .feature-card:hover .feature-icon {
+        transform: scale(1.1);
+    }
+
+    /* Step numbers */
+    .step-number {
+        transition: all 0.3s ease-in-out;
+    }
+
+    .step-card:hover .step-number {
+        transform: scale(1.1);
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .hero-section {
+            padding: 60px 0;
+        }
+        
+        .display-4 {
+            font-size: 2.5rem;
+        }
+        
+        .btn-lg {
+            padding: 12px 24px;
+            font-size: 1rem;
+        }
+    }
+</style>
