@@ -1,0 +1,360 @@
+@model AIResumeBuilder.Models.Resume
+
+@{
+    ViewData["Title"] = "Professional Resume Preview";
+}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Professional Resume Preview</h2>
+        <div>
+            <a href="@Url.Action("Create", "ProfessionalResume")" class="btn btn-outline-primary">✏️ Edit Resume</a>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">🏠 Home</a>
+        </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>📤 Export Your Resume</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <button onclick="exportAsPDF()" class="btn btn-danger btn-block w-100">
+                        📄 Export as PDF
+                    </button>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <button onclick="exportAsDOCX()" class="btn btn-primary btn-block w-100">
+                        📝 Export as DOCX
+                    </button>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <button onclick="exportAsHTML()" class="btn btn-success btn-block w-100">
+                        🌐 Export as HTML
+                    </button>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <button onclick="printResume()" class="btn btn-info btn-block w-100">
+                        🖨️ Print Resume
+                    </button>
+                </div>
+            </div>
+            <div id="exportMessage" class="mt-2"></div>
+            <small class="text-muted">All exports will be processed directly in your browser - no server calls needed!</small>
+        </div>
+    </div>
+
+    <!-- Professional Template Design -->
+    <div class="resume-preview-container border p-4 shadow-sm" style="background: white;">
+        <div class="text-center mb-4">
+            <h1 style="color: #2c3e50; margin-bottom: 5px; font-size: 28px;">@Model.FullName</h1>
+            <p class="mb-1" style="color: #7f8c8d; font-size: 16px;">@Model.TargetJobTitle</p>
+            <p class="mb-1" style="color: #7f8c8d;">@Model.Email • @Model.Phone</p>
+        </div>
+
+        <hr style="border-top: 2px solid #2c3e50; margin: 20px 0;">
+
+        <!-- Professional Summary -->
+        <div class="mb-4">
+            <h4 style="color: #2c3e50; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px;">PROFESSIONAL SUMMARY</h4>
+            <p style="line-height: 1.6; white-space: pre-line;">@Model.Summary</p>
+        </div>
+
+        <!-- Education -->
+        @if (Model.Educations != null && Model.Educations.Any(e => !string.IsNullOrEmpty(e.Institution)))
+        {
+            <div class="mb-4">
+                <h4 style="color: #2c3e50; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px;">EDUCATION</h4>
+                @foreach (var education in Model.Educations.Where(e => !string.IsNullOrEmpty(e.Institution)))
+                {
+                    <div class="mb-3">
+                        <strong style="color: #2c3e50;">@education.Degree in @education.Field</strong><br>
+                        <em style="color: #7f8c8d;">@education.Institution</em> - Graduated @education.GraduationYear
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Work Experience -->
+        @if (Model.Experiences != null && Model.Experiences.Any(e => !string.IsNullOrEmpty(e.Company)))
+        {
+            <div class="mb-4">
+                <h4 style="color: #2c3e50; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px;">PROFESSIONAL EXPERIENCE</h4>
+                @foreach (var experience in Model.Experiences.Where(e => !string.IsNullOrEmpty(e.Company)))
+                {
+                    <div class="mb-3">
+                        <strong style="color: #2c3e50;">@experience.Position</strong><br>
+                        <em style="color: #7f8c8d;">@experience.Company</em> | 
+                        @experience.StartDate
+                        @if (experience.EndDate.HasValue && experience.EndDate > 0)
+                        {
+                            <text> - @experience.EndDate.Value</text>
+                        }
+                        else if (experience.IsCurrent)
+                        {
+                            <text> - Present</text>
+                        }
+                        <p style="line-height: 1.6; margin-top: 5px; white-space: pre-line;">@experience.Description</p>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Skills -->
+        @if (Model.Skills != null && Model.Skills.Any(s => !string.IsNullOrEmpty(s.Name)))
+        {
+            <div class="mb-4">
+                <h4 style="color: #2c3e50; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px;">SKILLS</h4>
+                <div class="row">
+                    @foreach (var skill in Model.Skills.Where(s => !string.IsNullOrEmpty(s.Name)))
+                    {
+                        <div class="col-md-6 mb-2">
+                            • @skill.Name <small class="text-muted">(@skill.Level)</small>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="text-center mt-4">
+        <p class="text-muted">Resume ID: @Model.Id | Created: @Model.CreatedDate.ToString("MMMM dd, yyyy") | Template: Professional</p>
+    </div>
+
+    <script>
+    // Export as PDF function
+    function exportAsPDF() {
+        const element = document.querySelector('.resume-preview-container');
+        const messageDiv = document.getElementById('exportMessage');
+        
+        messageDiv.innerHTML = '<div class="alert alert-info">🔄 Generating PDF... Please wait</div>';
+        
+        const options = {
+            margin: 10,
+            filename: '@(Model.FullName ?? "Resume")_Professional_Resume.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 2,
+                useCORS: true,
+                logging: false
+            },
+            jsPDF: { 
+                unit: 'mm', 
+                format: 'a4', 
+                orientation: 'portrait' 
+            }
+        };
+        
+        html2pdf().set(options).from(element).save().then(() => {
+            messageDiv.innerHTML = '<div class="alert alert-success">✅ PDF downloaded successfully!</div>';
+            setTimeout(() => messageDiv.innerHTML = '', 3000);
+        }).catch(error => {
+            messageDiv.innerHTML = '<div class="alert alert-danger">❌ Error generating PDF: ' + error + '</div>';
+        });
+    }
+
+    // Export as DOCX function
+    function exportAsDOCX() {
+        const messageDiv = document.getElementById('exportMessage');
+        messageDiv.innerHTML = '<div class="alert alert-info">🔄 Generating Word document... Please wait</div>';
+        
+        try {
+            // Get all the text content directly
+            let docContent = `PROFESSIONAL RESUME
+=========================
+
+Name: @Model.FullName
+Email: @Model.Email
+Phone: @Model.Phone
+Target Position: @Model.TargetJobTitle
+
+PROFESSIONAL SUMMARY:
+@Model.Summary
+
+EDUCATION:
+`
+            
+            // Add education
+            @if (Model.Educations != null && Model.Educations.Any(e => !string.IsNullOrEmpty(e.Institution)))
+            {
+                foreach (var education in Model.Educations.Where(e => !string.IsNullOrEmpty(e.Institution)))
+                {
+                    @:docContent += '• @education.Degree in @education.Field\n';
+                    @:docContent += '  @education.Institution - Graduated @education.GraduationYear\n\n';
+                }
+            }
+            
+            docContent += 'PROFESSIONAL EXPERIENCE:\n';
+            
+            // Add experience
+            @if (Model.Experiences != null && Model.Experiences.Any(e => !string.IsNullOrEmpty(e.Company)))
+            {
+                foreach (var experience in Model.Experiences.Where(e => !string.IsNullOrEmpty(e.Company)))
+                {
+                    @:docContent += '• @experience.Position\n';
+                    @:docContent += '  @experience.Company | @experience.StartDate - ';
+                    if (experience.IsCurrent)
+                    {
+                        @:docContent += 'Present\n';
+                    }
+                    else if (experience.EndDate.HasValue)
+                    {
+                        @:docContent += '@experience.EndDate.Value\n';
+                    }
+                    else
+                    {
+                        @:docContent += 'N/A\n';
+                    }
+                    @:docContent += '  @experience.Description\n\n';
+                }
+            }
+            
+            docContent += 'SKILLS:\n';
+            
+            // Add skills
+            @if (Model.Skills != null && Model.Skills.Any(s => !string.IsNullOrEmpty(s.Name)))
+            {
+                foreach (var skill in Model.Skills.Where(s => !string.IsNullOrEmpty(s.Name)))
+                {
+                    @:docContent += '• @skill.Name (@skill.Level)\n';
+                }
+            }
+            
+            docContent += `\nGenerated on: ${new Date().toLocaleDateString()}`;
+            docContent += `\nTemplate: Professional`;
+            
+            const blob = new Blob([docContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+            saveAs(blob, '@(Model.FullName ?? "Resume")_Professional_Resume.docx');
+            messageDiv.innerHTML = '<div class="alert alert-success">✅ Word document downloaded successfully!</div>';
+            setTimeout(() => messageDiv.innerHTML = '', 3000);
+        } catch (error) {
+            messageDiv.innerHTML = '<div class="alert alert-danger">❌ Error generating Word document: ' + error + '</div>';
+        }
+    }
+
+    // Export as HTML function
+    function exportAsHTML() {
+        const messageDiv = document.getElementById('exportMessage');
+        messageDiv.innerHTML = '<div class="alert alert-info">🔄 Generating HTML file... Please wait</div>';
+        
+        try {
+            const resumeContent = document.querySelector('.resume-preview-container').outerHTML;
+            const fullHTML = `<!DOCTYPE html>
+    <html>
+    <head>
+        <title>@Model.FullName - Professional Resume</title>
+        <meta charset="utf-8">
+        <style>
+            body { 
+                font-family: Arial, sans-serif; 
+                margin: 20px; 
+                background: #f8f9fa; 
+                line-height: 1.6;
+            }
+            .resume-preview-container { 
+                background: white; 
+                padding: 40px; 
+                border: 1px solid #dee2e6;
+                border-radius: 5px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            h1 { 
+                color: #2c3e50; 
+                text-align: center;
+                margin-bottom: 10px;
+            }
+            h4 {
+                color: #2c3e50;
+                border-bottom: 1px solid #bdc3c7;
+                padding-bottom: 8px;
+                margin-top: 25px;
+            }
+            hr {
+                border-top: 2px solid #2c3e50;
+                margin: 20px 0;
+            }
+            .text-center {
+                text-align: center;
+            }
+            .mb-4 {
+                margin-bottom: 25px;
+            }
+            .mb-3 {
+                margin-bottom: 15px;
+            }
+            .row {
+                display: flex;
+                flex-wrap: wrap;
+                margin-right: -15px;
+                margin-left: -15px;
+            }
+            .col-md-6 {
+                flex: 0 0 50%;
+                max-width: 50%;
+                padding: 0 15px;
+            }
+        </style>
+    </head>
+    <body>
+        ${resumeContent}
+        <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
+            <p>Generated on ${new Date().toLocaleDateString()} | Resume ID: @Model.Id | Template: Professional</p>
+        </div>
+    </body>
+    </html>`;
+            
+            const blob = new Blob([fullHTML], { type: 'text/html' });
+            saveAs(blob, '@(Model.FullName ?? "Resume")_Professional_Resume.html');
+            messageDiv.innerHTML = '<div class="alert alert-success">✅ HTML file downloaded successfully!</div>';
+            setTimeout(() => messageDiv.innerHTML = '', 3000);
+        } catch (error) {
+            messageDiv.innerHTML = '<div class="alert alert-danger">❌ Error generating HTML file: ' + error + '</div>';
+        }
+    }
+
+    // Enhanced print function
+    function printResume() {
+        const messageDiv = document.getElementById('exportMessage');
+        messageDiv.innerHTML = '<div class="alert alert-info">🔄 Opening print dialog...</div>';
+        
+        window.print();
+        
+        setTimeout(() => {
+            messageDiv.innerHTML = '<div class="alert alert-success">✅ Print dialog opened!</div>';
+            setTimeout(() => messageDiv.innerHTML = '', 2000);
+        }, 1000);
+    }
+    </script>
+</div>
+
+<style>
+    @@media print {
+        .alert, .card, .btn, .text-center.mt-4 {
+            display: none !important;
+        }
+        .resume-preview-container {
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+        }
+        body {
+            margin: 0;
+            padding: 10px;
+            background: white !important;
+        }
+        h1, h4 {
+            color: #000 !important;
+        }
+        hr {
+            border-top-color: #000 !important;
+        }
+    }
+</style>

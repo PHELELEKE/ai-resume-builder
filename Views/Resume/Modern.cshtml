@@ -1,0 +1,77 @@
+@model AIResumeBuilder.Models.Resume
+
+<div class="resume-template modern-template">
+    <div class="header-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0;">
+        <div class="text-center">
+            <h1 style="margin-bottom: 10px; font-size: 32px;">@Model.FullName</h1>
+            <p style="font-size: 18px; margin-bottom: 5px;">@Model.TargetJobTitle</p>
+            <p style="opacity: 0.9;">@Model.Email • @Model.Phone</p>
+        </div>
+    </div>
+
+    <div style="padding: 30px;">
+        <!-- Professional Summary -->
+        <div class="mb-4">
+            <h4 style="color: #667eea; border-left: 4px solid #667eea; padding-left: 10px; margin-bottom: 15px;">PROFESSIONAL SUMMARY</h4>
+            <p style="line-height: 1.6; white-space: pre-line; color: #555;">@Model.Summary</p>
+        </div>
+
+        <!-- Education -->
+        @if (Model.Educations != null && Model.Educations.Any(e => !string.IsNullOrEmpty(e.Institution)))
+        {
+            <div class="mb-4">
+                <h4 style="color: #667eea; border-left: 4px solid #667eea; padding-left: 10px; margin-bottom: 15px;">EDUCATION</h4>
+                @foreach (var education in Model.Educations.Where(e => !string.IsNullOrEmpty(e.Institution)))
+                {
+                    <div class="mb-3" style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #333; display: block;">@education.Degree in @education.Field</strong>
+                        <em style="color: #667eea;">@education.Institution</em> - <span style="color: #666;">Graduated @education.GraduationYear</span>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Work Experience -->
+        @if (Model.Experiences != null && Model.Experiences.Any(e => !string.IsNullOrEmpty(e.Company)))
+        {
+            <div class="mb-4">
+                <h4 style="color: #667eea; border-left: 4px solid #667eea; padding-left: 10px; margin-bottom: 15px;">PROFESSIONAL EXPERIENCE</h4>
+                @foreach (var experience in Model.Experiences.Where(e => !string.IsNullOrEmpty(e.Company)))
+                {
+                    <div class="mb-3" style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #333; display: block;">@experience.Position</strong>
+                        <em style="color: #667eea;">@experience.Company</em> | 
+                        <span style="color: #666;">
+                            @experience.StartDate
+                            @if (experience.EndDate.HasValue && experience.EndDate > 0)
+                            {
+                                <text> - @experience.EndDate.Value</text>
+                            }
+                            else if (experience.IsCurrent)
+                            {
+                                <text> - Present</text>
+                            }
+                        </span>
+                        <p style="line-height: 1.6; margin-top: 10px; color: #555; white-space: pre-line;">@experience.Description</p>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Skills -->
+        @if (Model.Skills != null && Model.Skills.Any(s => !string.IsNullOrEmpty(s.Name)))
+        {
+            <div class="mb-4">
+                <h4 style="color: #667eea; border-left: 4px solid #667eea; padding-left: 10px; margin-bottom: 15px;">SKILLS</h4>
+                <div class="skill-chips">
+                    @foreach (var skill in Model.Skills.Where(s => !string.IsNullOrEmpty(s.Name)))
+                    {
+                        <span style="display: inline-block; background: #667eea; color: white; padding: 5px 15px; border-radius: 20px; margin: 5px; font-size: 14px;">
+                            @skill.Name <small>(@skill.Level)</small>
+                        </span>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>

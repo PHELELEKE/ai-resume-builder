@@ -1,0 +1,13 @@
+<button onclick="exportToPDF()" class="btn">Export to PDF</button>
+<button onclick="window.print()" class="btn">Print</button>
+
+<script>
+function exportToPDF() {
+    // Using html2pdf.js or similar client-side library
+    const element = document.getElementById('resume-content');
+    html2pdf().from(element).save('resume.pdf');
+}
+</script>
+
+<!-- Include html2pdf library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>

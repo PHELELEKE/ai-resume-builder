@@ -1,0 +1,73 @@
+@model AIResumeBuilder.Models.Resume
+
+<div class="resume-template professional-template">
+    <div class="text-center mb-4">
+        <h1 style="color: #2c3e50; margin-bottom: 5px; font-size: 28px;">@Model.FullName</h1>
+        <p class="mb-1" style="color: #7f8c8d; font-size: 16px;">@Model.TargetJobTitle</p>
+        <p class="mb-1" style="color: #7f8c8d;">@Model.Email • @Model.Phone</p>
+    </div>
+
+    <hr style="border-top: 2px solid #2c3e50; margin: 20px 0;">
+
+    <!-- Professional Summary -->
+    <div class="mb-4">
+        <h4 style="color: #2c3e50; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px;">PROFESSIONAL SUMMARY</h4>
+        <p style="line-height: 1.6; white-space: pre-line;">@Model.Summary</p>
+    </div>
+
+    <!-- Education -->
+    @if (Model.Educations != null && Model.Educations.Any(e => !string.IsNullOrEmpty(e.Institution)))
+    {
+        <div class="mb-4">
+            <h4 style="color: #2c3e50; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px;">EDUCATION</h4>
+            @foreach (var education in Model.Educations.Where(e => !string.IsNullOrEmpty(e.Institution)))
+            {
+                <div class="mb-3">
+                    <strong style="color: #2c3e50;">@education.Degree in @education.Field</strong><br>
+                    <em style="color: #7f8c8d;">@education.Institution</em> - Graduated @education.GraduationYear
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Work Experience -->
+    @if (Model.Experiences != null && Model.Experiences.Any(e => !string.IsNullOrEmpty(e.Company)))
+    {
+        <div class="mb-4">
+            <h4 style="color: #2c3e50; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px;">PROFESSIONAL EXPERIENCE</h4>
+            @foreach (var experience in Model.Experiences.Where(e => !string.IsNullOrEmpty(e.Company)))
+            {
+                <div class="mb-3">
+                    <strong style="color: #2c3e50;">@experience.Position</strong><br>
+                    <em style="color: #7f8c8d;">@experience.Company</em> | 
+                    @experience.StartDate
+                    @if (experience.EndDate.HasValue && experience.EndDate > 0)
+                    {
+                        <text> - @experience.EndDate.Value</text>
+                    }
+                    else if (experience.IsCurrent)
+                    {
+                        <text> - Present</text>
+                    }
+                    <p style="line-height: 1.6; margin-top: 5px; white-space: pre-line;">@experience.Description</p>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Skills -->
+    @if (Model.Skills != null && Model.Skills.Any(s => !string.IsNullOrEmpty(s.Name)))
+    {
+        <div class="mb-4">
+            <h4 style="color: #2c3e50; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px;">SKILLS</h4>
+            <div class="row">
+                @foreach (var skill in Model.Skills.Where(s => !string.IsNullOrEmpty(s.Name)))
+                {
+                    <div class="col-md-6 mb-2">
+                        • @skill.Name <small class="text-muted">(@skill.Level)</small>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

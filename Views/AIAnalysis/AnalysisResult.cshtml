@@ -1,0 +1,169 @@
+@model AIResumeBuilder.Models.ResumeAnalysisResult
+
+@{
+    ViewData["Title"] = "Resume Analysis Results";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>🎯 Targeted Resume Analysis Results</h2>
+                <a href="@Url.Action("Index")" class="btn btn-outline-primary">
+                    🔄 Analyze Another Resume
+                </a>
+            </div>
+
+            <!-- Job Match Score -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">Job Description Match</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 text-center">
+                            <div class="match-circle mx-auto mb-3" 
+                                 style="width: 120px; height: 120px; border-radius: 50%; 
+                                        background: conic-gradient(#4CAF50 @(Model.MatchPercentage * 3.6)deg, #e0e0e0 0deg); 
+                                        display: flex; align-items: center; justify-content: center; position: relative;">
+                                <div style="width: 100px; height: 100px; background: white; border-radius: 50%; 
+                                            display: flex; align-items: center; justify-content: center;">
+                                    <span style="font-size: 20px; font-weight: bold; color: #2c3e50;">
+                                        @Model.MatchPercentage%
+                                    </span>
+                                </div>
+                            </div>
+                            <h5>Match Score</h5>
+                        </div>
+                        <div class="col-md-8">
+                            <h6>Overall Resume Score: <strong>@Model.Score/100</strong></h6>
+                            <div class="progress mb-3" style="height: 20px;">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: @Model.Score%;" aria-valuenow="@Model.Score" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                    @Model.Score%
+                                </div>
+                            </div>
+                            @if (Model.IsAIEnhanced)
+                            {
+                                <span class="badge bg-primary">🤖 AI-Enhanced Analysis</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Improvement Suggestions -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-warning">
+                    <h4 class="mb-0">💡 Targeted Improvement Suggestions</h4>
+                </div>
+                <div class="card-body">
+                    @if (Model.Feedback.Any())
+                    {
+                        <div class="suggestions-list">
+                            @foreach (var feedback in Model.Feedback)
+                            {
+                                <div class="suggestion-item alert alert-light border">
+                                    @Html.Raw(feedback)
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Missing Keywords -->
+            @if (Model.KeywordMatches.Any())
+            {
+                <div class="card shadow-lg mb-4">
+                    <div class="card-header bg-danger text-white">
+                        <h4 class="mb-0">🔍 Keywords to Add</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">Consider incorporating these keywords from the job description into your resume:</p>
+                        <div class="keyword-chips">
+                            @foreach (var keyword in Model.KeywordMatches.Take(15))
+                            {
+                                <span class="badge bg-light text-dark border me-2 mb-2 p-2">
+                                    @keyword
+                                </span>
+                            }
+                        </div>
+                        <small class="text-muted">Showing top 15 missing keywords</small>
+                    </div>
+                </div>
+            }
+
+            <!-- Action Buttons -->
+            <div class="row mt-4">
+                <div class="col-md-3 mb-2">
+                    <a href="@Url.Action("Create", "ModernResume")" class="btn btn-primary w-100">
+                        ✏️ Improve Resume
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary w-100">
+                        🏠 Back to Home
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <button onclick="window.print()" class="btn btn-outline-info w-100">
+                        🖨️ Print Report
+                    </button>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a href="@Url.Action("Index")" class="btn btn-success w-100">
+                        🔄 New Analysis
+                    </a>
+                </div>
+            </div>
+
+            <!-- Analysis Details -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h6>Analysis Details</h6>
+                    <div class="row text-muted">
+                        <div class="col-md-4">
+                            <small><strong>File:</strong> @Model.FileName</small>
+                        </div>
+                        <div class="col-md-4">
+                            <small><strong>Analysis Date:</strong> @Model.AnalysisDate.ToString("MMMM dd, yyyy")</small>
+                        </div>
+                        <div class="col-md-4">
+                            <small><strong>Analysis Type:</strong> @(Model.IsAIEnhanced ? "AI-Enhanced" : "Basic")</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .match-circle, .score-circle {
+        transition: all 0.3s ease;
+    }
+
+    .match-circle:hover, .score-circle:hover {
+        transform: scale(1.05);
+    }
+
+    .suggestion-item {
+        margin-bottom: 10px;
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    .keyword-chips {
+        line-height: 2.5;
+    }
+
+    .progress {
+        border-radius: 10px;
+    }
+
+    .progress-bar {
+        border-radius: 10px;
+    }
+</style>

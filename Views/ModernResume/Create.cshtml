@@ -1,0 +1,695 @@
+@model AIResumeBuilder.Models.Resume
+
+@{
+    ViewData["Title"] = "Create Professional Resume";
+}
+
+<div class="container-fluid px-4">
+    <div class="text-center mb-5 py-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px;">
+        <h2 class="fw-bold text-white mb-3">Create Your Classic Resume</h2>
+        <p class="text-white-50 mb-0">Craft a standout resume that gets you noticed by top employers</p>
+    </div>
+    
+    <form asp-action="Create" method="post" id="resumeForm">
+        @Html.AntiForgeryToken()
+        
+        <div class="row">
+            <!-- Personal Information -->
+            <div class="col-lg-6">
+                <div class="card mb-4 border-0 shadow-lg">
+                    <div class="card-header text-white d-flex align-items-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px 12px 0 0;">
+                        <i class="fas fa-user me-2"></i>
+                        <h5 class="mb-0">Personal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label asp-for="FullName" class="form-label fw-bold">Full Name *</label>
+                            <input asp-for="FullName" class="form-control border-0 shadow-sm" style="background: #f8f9fa; border-radius: 8px;" placeholder="Enter your full name" required />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Email" class="form-label fw-bold">Email *</label>
+                                    <input asp-for="Email" class="form-control border-0 shadow-sm" style="background: #f8f9fa; border-radius: 8px;" placeholder="your.email@example.com" required />
+                                    <span asp-validation-for="Email" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Phone" class="form-label fw-bold">Phone *</label>
+                                    <input asp-for="Phone" class="form-control border-0 shadow-sm" style="background: #f8f9fa; border-radius: 8px;" placeholder="123-456-7890" required />
+                                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="TargetJobTitle" class="form-label fw-bold">Target Job Title *</label>
+                            <input asp-for="TargetJobTitle" class="form-control border-0 shadow-sm" style="background: #f8f9fa; border-radius: 8px;" placeholder="e.g., Software Developer" required />
+                            <span asp-validation-for="TargetJobTitle" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Summary -->
+            <div class="col-lg-6">
+                <div class="card mb-4 border-0 shadow-lg">
+                    <div class="card-header text-white d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px 12px 0 0;">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-file-alt me-2"></i>
+                            <h5 class="mb-0">Professional Summary</h5>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-light" onclick="generateAIContent('summary')" id="aiGenerateBtn">
+                            <i class="fas fa-robot me-1"></i> AI Generate
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label asp-for="Summary" class="form-label fw-bold">Professional Summary *</label>
+                            <textarea asp-for="Summary" class="form-control border-0 shadow-sm" rows="6" style="background: #f8f9fa; border-radius: 8px;" 
+                                      placeholder="Describe your professional background, key achievements, and career objectives..." required></textarea>
+                            <span asp-validation-for="Summary" class="text-danger small"></span>
+                            <small class="form-text text-muted">A compelling summary increases your chances by 40%</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education Section -->
+        <div class="card mb-4 border-0 shadow-lg">
+            <div class="card-header text-white d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px 12px 0 0;">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-graduation-cap me-2"></i>
+                    <h5 class="mb-0">Education History</h5>
+                </div>
+                <button type="button" class="btn btn-sm btn-light" onclick="addEducation()">
+                    <i class="fas fa-plus me-1"></i> Add Education
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="educationSection">
+                    <div class="education-item border p-3 mb-3 rounded" style="background: #f8f9fa; border-radius: 10px;">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Institution *</label>
+                                    <input name="Educations[0].Institution" class="form-control border-0 shadow-sm" style="border-radius: 8px;" placeholder="University Name" required />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Degree *</label>
+                                    <select name="Educations[0].Degree" class="form-control border-0 shadow-sm" style="border-radius: 8px;" required>
+                                        <option value="">Select Degree</option>
+                                        <option value="High School">High School</option>
+                                        <option value="Associate">Associate</option>
+                                        <option value="Bachelor's">Bachelor's</option>
+                                        <option value="Master's">Master's</option>
+                                        <option value="PhD">PhD</option>
+                                        <option value="Diploma">Diploma</option>
+                                        <option value="Certificate">Certificate</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Field of Study *</label>
+                                    <input name="Educations[0].Field" class="form-control border-0 shadow-sm" style="border-radius: 8px;" placeholder="Computer Science, Business, etc." required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Graduation Year *</label>
+                                    <select name="Educations[0].GraduationYear" class="form-control border-0 shadow-sm" style="border-radius: 8px;" required>
+                                        <option value="">Select Year</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm text-white" style="background: #ff6b6b; border-radius: 6px;" onclick="this.parentElement.remove()">
+                            <i class="fas fa-trash me-1"></i> Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Work Experience Section -->
+        <div class="card mb-4 border-0 shadow-lg">
+            <div class="card-header text-white d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px 12px 0 0;">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-briefcase me-2"></i>
+                    <h5 class="mb-0">Work Experience</h5>
+                </div>
+                <button type="button" class="btn btn-sm btn-light" onclick="addExperience()">
+                    <i class="fas fa-plus me-1"></i> Add Experience
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="experienceSection">
+                    <div class="experience-item border p-3 mb-3 rounded" style="background: #f8f9fa; border-radius: 10px;">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Company *</label>
+                                    <input name="Experiences[0].Company" class="form-control border-0 shadow-sm" style="border-radius: 8px;" placeholder="Company Name" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Position *</label>
+                                    <input name="Experiences[0].Position" class="form-control border-0 shadow-sm" style="border-radius: 8px;" placeholder="Job Title" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Start Year *</label>
+                                    <select name="Experiences[0].StartDate" class="form-control border-0 shadow-sm" style="border-radius: 8px;" required>
+                                        <option value="">Select Year</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">End Year</label>
+                                    <select name="Experiences[0].EndDate" class="form-control border-0 shadow-sm" style="border-radius: 8px;">
+                                        <option value="">Select Year</option>
+                                        <option value="Present">Present</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-bold">Description *</label>
+                            <textarea name="Experiences[0].Description" class="form-control border-0 shadow-sm" rows="3" style="border-radius: 8px;" placeholder="Describe your responsibilities, achievements, and key contributions..." required></textarea>
+                        </div>
+                        <button type="button" class="btn btn-sm text-white" style="background: #ff6b6b; border-radius: 6px;" onclick="this.parentElement.remove()">
+                            <i class="fas fa-trash me-1"></i> Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills Section -->
+        <div class="card mb-4 border-0 shadow-lg">
+            <div class="card-header text-white d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px 12px 0 0;">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-tools me-2"></i>
+                    <h5 class="mb-0">Skills & Competencies</h5>
+                </div>
+                <button type="button" class="btn btn-sm btn-light" onclick="addSkill()">
+                    <i class="fas fa-plus me-1"></i> Add Skill
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="skillsSection">
+                    <div class="skill-item border p-3 mb-3 rounded" style="background: #f8f9fa; border-radius: 10px;">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Skill Name *</label>
+                                    <input name="Skills[0].Name" class="form-control border-0 shadow-sm" style="border-radius: 8px;" placeholder="e.g., JavaScript, Project Management" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Level *</label>
+                                    <select name="Skills[0].Level" class="form-control border-0 shadow-sm" style="border-radius: 8px;" required>
+                                        <option value="">Select Level</option>
+                                        <option value="Beginner">Beginner</option>
+                                        <option value="Intermediate">Intermediate</option>
+                                        <option value="Advanced">Advanced</option>
+                                        <option value="Expert">Expert</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Category *</label>
+                                    <select name="Skills[0].Category" class="form-control border-0 shadow-sm" style="border-radius: 8px;" required>
+                                        <option value="">Select Category</option>
+                                        <option value="Technical">Technical</option>
+                                        <option value="Soft Skills">Soft Skills</option>
+                                        <option value="Languages">Languages</option>
+                                        <option value="Tools">Tools</option>
+                                        <option value="Certifications">Certifications</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm text-white" style="background: #ff6b6b; border-radius: 6px;" onclick="this.parentElement.remove()">
+                            <i class="fas fa-trash me-1"></i> Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group text-center py-4">
+            <button type="submit" class="btn text-white btn-lg shadow px-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 15px 40px; border-radius: 10px; font-size: 1.1rem;">
+                <i class="fas fa-file-download me-2"></i> Generate Classic Resume
+            </button>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary btn-lg ms-3 px-4" style="border-radius: 10px; padding: 15px 30px;">
+                <i class="fas fa-times me-2"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        let educationCount = 1;
+        let experienceCount = 1;
+        let skillCount = 1;
+
+        // Initialize year dropdowns and page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeYearDropdowns();
+            console.log("Professional Resume Builder loaded successfully");
+        });
+
+        function initializeYearDropdowns() {
+            const currentYear = new Date().getFullYear();
+            const startYear = currentYear - 50;
+            
+            // Initialize all year dropdowns
+            document.querySelectorAll('select[name$="GraduationYear"], select[name$="StartDate"], select[name$="EndDate"]').forEach(select => {
+                // Clear existing options except the first one
+                while (select.options.length > 1) {
+                    select.remove(1);
+                }
+                
+                // Add years from startYear to currentYear + 5 for education
+                for (let year = startYear; year <= currentYear + 5; year++) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function addEducation() {
+            const html = `
+                <div class="education-item border p-3 mb-3 rounded" style="background: #f8f9fa; border-radius: 10px;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Institution *</label>
+                                <input name="Educations[${educationCount}].Institution" class="form-control border-0 shadow-sm" style="border-radius: 8px;" placeholder="University Name" required />
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Degree *</label>
+                                <select name="Educations[${educationCount}].Degree" class="form-control border-0 shadow-sm" style="border-radius: 8px;" required>
+                                    <option value="">Select Degree</option>
+                                    <option value="High School">High School</option>
+                                    <option value="Associate">Associate</option>
+                                    <option value="Bachelor's">Bachelor's</option>
+                                    <option value="Master's">Master's</option>
+                                    <option value="PhD">PhD</option>
+                                    <option value="Diploma">Diploma</option>
+                                    <option value="Certificate">Certificate</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Field of Study *</label>
+                                <input name="Educations[${educationCount}].Field" class="form-control border-0 shadow-sm" style="border-radius: 8px;" placeholder="Computer Science, Business, etc." required />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Graduation Year *</label>
+                                <select name="Educations[${educationCount}].GraduationYear" class="form-control border-0 shadow-sm" style="border-radius: 8px;" required>
+                                    <option value="">Select Year</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm text-white" style="background: #ff6b6b; border-radius: 6px;" onclick="this.parentElement.remove()">
+                        <i class="fas fa-trash me-1"></i> Remove
+                    </button>
+                </div>
+            `;
+            document.getElementById('educationSection').insertAdjacentHTML('beforeend', html);
+            initializeYearDropdowns(); // Reinitialize for new dropdown
+            educationCount++;
+        }
+
+        function addExperience() {
+            const html = `
+                <div class="experience-item border p-3 mb-3 rounded" style="background: #f8f9fa; border-radius: 10px;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Company *</label>
+                                <input name="Experiences[${experienceCount}].Company" class="form-control border-0 shadow-sm" style="border-radius: 8px;" placeholder="Company Name" required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Position *</label>
+                                <input name="Experiences[${experienceCount}].Position" class="form-control border-0 shadow-sm" style="border-radius: 8px;" placeholder="Job Title" required />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Start Year *</label>
+                                <select name="Experiences[${experienceCount}].StartDate" class="form-control border-0 shadow-sm" style="border-radius: 8px;" required>
+                                    <option value="">Select Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">End Year</label>
+                                <select name="Experiences[${experienceCount}].EndDate" class="form-control border-0 shadow-sm" style="border-radius: 8px;">
+                                    <option value="">Select Year</option>
+                                    <option value="Present">Present</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-bold">Description *</label>
+                        <textarea name="Experiences[${experienceCount}].Description" class="form-control border-0 shadow-sm" rows="3" style="border-radius: 8px;" placeholder="Describe your responsibilities, achievements, and key contributions..." required></textarea>
+                    </div>
+                    <button type="button" class="btn btn-sm text-white" style="background: #ff6b6b; border-radius: 6px;" onclick="this.parentElement.remove()">
+                        <i class="fas fa-trash me-1"></i> Remove
+                    </button>
+                </div>
+            `;
+            document.getElementById('experienceSection').insertAdjacentHTML('beforeend', html);
+            initializeYearDropdowns(); // Reinitialize for new dropdown
+            experienceCount++;
+        }
+
+        function addSkill() {
+            const html = `
+                <div class="skill-item border p-3 mb-3 rounded" style="background: #f8f9fa; border-radius: 10px;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Skill Name *</label>
+                                <input name="Skills[${skillCount}].Name" class="form-control border-0 shadow-sm" style="border-radius: 8px;" placeholder="e.g., JavaScript, Project Management" required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Level *</label>
+                                <select name="Skills[${skillCount}].Level" class="form-control border-0 shadow-sm" style="border-radius: 8px;" required>
+                                    <option value="">Select Level</option>
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Intermediate">Intermediate</option>
+                                    <option value="Advanced">Advanced</option>
+                                    <option value="Expert">Expert</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Category *</label>
+                                <select name="Skills[${skillCount}].Category" class="form-control border-0 shadow-sm" style="border-radius: 8px;" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Technical">Technical</option>
+                                    <option value="Soft Skills">Soft Skills</option>
+                                    <option value="Languages">Languages</option>
+                                    <option value="Tools">Tools</option>
+                                    <option value="Certifications">Certifications</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm text-white" style="background: #ff6b6b; border-radius: 6px;" onclick="this.parentElement.remove()">
+                        <i class="fas fa-trash me-1"></i> Remove
+                    </button>
+                </div>
+            `;
+            document.getElementById('skillsSection').insertAdjacentHTML('beforeend', html);
+            skillCount++;
+        }
+
+        // Enhanced AI Content Generation
+        async function generateAIContent(section) {
+            const jobTitle = document.querySelector('#TargetJobTitle').value;
+            const fullName = document.querySelector('#FullName').value;
+            
+            if (!jobTitle) {
+                showToast('Please enter a target job title first', 'warning');
+                return;
+            }
+
+            if (!fullName) {
+                showToast('Please enter your full name first', 'warning');
+                return;
+            }
+
+            try {
+                const button = document.getElementById('aiGenerateBtn');
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Generating...';
+                button.disabled = true;
+
+                // Get user data for context-aware generation
+                const userData = collectUserData();
+                const aiContent = generateSmartSummary(jobTitle, fullName, userData);
+                
+                document.querySelector('#Summary').value = aiContent;
+                
+                button.innerHTML = originalText;
+                button.disabled = false;
+                
+                showToast('AI content generated successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error generating AI content:', error);
+                showToast('Error generating AI content. Please try again.', 'error');
+                const button = document.getElementById('aiGenerateBtn');
+                button.innerHTML = '<i class="fas fa-robot me-1"></i> AI Generate';
+                button.disabled = false;
+            }
+        }
+
+        function collectUserData() {
+            const data = {
+                education: [],
+                experience: [],
+                skills: []
+            };
+
+            // Collect education data
+            document.querySelectorAll('.education-item').forEach((item, index) => {
+                const institution = item.querySelector('input[name="Educations[' + index + '].Institution"]');
+                const degree = item.querySelector('select[name="Educations[' + index + '].Degree"]');
+                const field = item.querySelector('input[name="Educations[' + index + '].Field"]');
+                
+                if (institution && institution.value) {
+                    data.education.push({
+                        institution: institution.value,
+                        degree: degree ? degree.value : '',
+                        field: field ? field.value : ''
+                    });
+                }
+            });
+
+            // Collect experience data
+            document.querySelectorAll('.experience-item').forEach((item, index) => {
+                const company = item.querySelector('input[name="Experiences[' + index + '].Company"]');
+                const position = item.querySelector('input[name="Experiences[' + index + '].Position"]');
+                
+                if (company && company.value) {
+                    data.experience.push({
+                        company: company.value,
+                        position: position ? position.value : '',
+                        duration: calculateExperienceDuration(item)
+                    });
+                }
+            });
+
+            // Collect skills data
+            document.querySelectorAll('.skill-item').forEach((item, index) => {
+                const skillName = item.querySelector('input[name="Skills[' + index + '].Name"]');
+                const skillLevel = item.querySelector('select[name="Skills[' + index + '].Level"]');
+                const category = item.querySelector('select[name="Skills[' + index + '].Category"]');
+                
+                if (skillName && skillName.value) {
+                    data.skills.push({
+                        name: skillName.value,
+                        level: skillLevel ? skillLevel.value : '',
+                        category: category ? category.value : ''
+                    });
+                }
+            });
+
+            return data;
+        }
+
+        function calculateExperienceDuration(experienceItem) {
+            const startYear = experienceItem.querySelector('select[name$="StartDate"]');
+            const endYear = experienceItem.querySelector('select[name$="EndDate"]');
+            
+            if (startYear && startYear.value && endYear && endYear.value) {
+                if (endYear.value === 'Present') {
+                    return 'Present';
+                }
+                const duration = parseInt(endYear.value) - parseInt(startYear.value);
+                return duration > 0 ? duration + ' years' : '1 year';
+            }
+            return '';
+        }
+
+        function generateSmartSummary(jobTitle, fullName, userData) {
+            const { education, experience, skills } = userData;
+            
+            // Determine experience level
+            let experienceLevel = "Accomplished";
+            let yearsExperience = experience.length;
+            if (yearsExperience >= 8) experienceLevel = "Senior";
+            else if (yearsExperience >= 5) experienceLevel = "Experienced";
+            else if (yearsExperience >= 2) experienceLevel = "Skilled";
+            else experienceLevel = "Motivated";
+
+            // Get highest education
+            const highestEd = education.length > 0 ? education[0] : null;
+            
+            // Categorize skills
+            const techSkills = skills.filter(s => s.category === 'Technical').slice(0, 4);
+            const softSkills = skills.filter(s => s.category === 'Soft Skills').slice(0, 2);
+
+            // Industry-specific templates
+            const templates = {
+                'software': `${experienceLevel} ${jobTitle} with ${yearsExperience || 'proven'} years of experience delivering robust software solutions. `,
+                'data': `${experienceLevel} ${jobTitle} specializing in data-driven decision making and analytical insights. `,
+                'manager': `${experienceLevel} ${jobTitle} with expertise in team leadership and strategic planning. `,
+                'marketing': `${experienceLevel} ${jobTitle} focused on driving brand growth and market engagement. `,
+                'sales': `${experienceLevel} ${jobTitle} with a track record of exceeding targets and building client relationships. `,
+                'default': `${experienceLevel} ${jobTitle} with strong professional background and commitment to excellence. `
+            };
+
+            // Find matching template
+            const lowerTitle = jobTitle.toLowerCase();
+            let template = templates.default;
+            for (const [key, value] of Object.entries(templates)) {
+                if (lowerTitle.includes(key)) {
+                    template = value;
+                    break;
+                }
+            }
+
+            let summary = template;
+
+            // Add technical skills if available
+            if (techSkills.length > 0) {
+                summary += `Proficient in ${techSkills.map(s => s.name).join(', ')}. `;
+            }
+
+            // Add education if available
+            if (highestEd) {
+                summary += `Holds a ${highestEd.degree} in ${highestEd.field}. `;
+            }
+
+            // Add soft skills
+            if (softSkills.length > 0) {
+                summary += `Strong ${softSkills.map(s => s.name).join(' and ')} skills. `;
+            }
+
+            // Add closing statement
+            summary += `Committed to driving results and contributing to organizational success through innovative solutions and collaborative teamwork.`;
+
+            return summary;
+        }
+
+        function showToast(message, type = 'info') {
+            // Remove existing toasts
+            document.querySelectorAll('.custom-toast').forEach(toast => toast.remove());
+
+            const toast = document.createElement('div');
+            toast.className = `custom-toast alert alert-${type} alert-dismissible fade show position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; border-radius: 10px;';
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}-circle me-2"></i>
+                    <div>${message}</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 4000);
+        }
+    </script>
+
+    <style>
+        .form-control:focus {
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+            border-color: #667eea !important;
+        }
+
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 12px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        }
+
+        .btn {
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .education-item, .experience-item, .skill-item {
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef !important;
+        }
+
+        .education-item:hover, .experience-item:hover, .skill-item:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+            border-color: #667eea !important;
+        }
+
+        .container-fluid {
+            max-width: 1400px;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+    </style>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+}

@@ -1,0 +1,39 @@
+@model List<Resume>
+
+@{
+    ViewData["Title"] = "My Resumes";
+}
+
+<div class="container">
+    <h2>My Resumes</h2>
+    
+    @if (Model.Any())
+    {
+        <div class="row">
+            @foreach (var resume in Model)
+            {
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">@resume.FullName</h5>
+                            <p class="card-text">
+                                <strong>Target Job:</strong> @resume.TargetJobTitle<br>
+                                <strong>Template:</strong> @resume.Template<br>
+                                <strong>Created:</strong> @resume.CreatedDate.ToString("MMM dd, yyyy")
+                            </p>
+                            <a href="@Url.Action("Preview", new { id = resume.Id })" class="btn btn-primary">View</a>
+                            <a href="@Url.Action("Export", new { id = resume.Id })" class="btn btn-secondary">Export</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <p>You haven't created any resumes yet.</p>
+            <a href="@Url.Action("ChooseTemplate")" class="btn btn-primary">Create Your First Resume</a>
+        </div>
+    }
+</div>

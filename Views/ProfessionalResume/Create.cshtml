@@ -1,0 +1,416 @@
+@model AIResumeBuilder.Models.Resume
+
+@{
+    ViewData["Title"] = "Create Professional Resume";
+}
+
+<div class="container">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-primary mb-3">Create Professional Resume</h2>
+        <p class="text-muted fs-5">Clean and professional design for all industries</p>
+    </div>
+    
+    <form asp-action="Create" method="post" id="resumeForm">
+        @Html.AntiForgeryToken()
+        
+        <div class="row">
+            <!-- Personal Information -->
+            <div class="col-md-6">
+                <div class="card mb-4 border-0 shadow-lg">
+                    <div class="card-header text-white py-3" style="background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label asp-for="FullName" class="form-label fw-bold">Full Name *</label>
+                            <input asp-for="FullName" class="form-control border-0 shadow-sm" style="background: #f8f9fa; border-radius: 8px;" placeholder="Enter your full name" required />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="Email" class="form-label fw-bold">Email *</label>
+                            <input asp-for="Email" class="form-control border-0 shadow-sm" style="background: #f8f9fa; border-radius: 8px;" placeholder="your.email@example.com" required />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="Phone" class="form-label fw-bold">Phone *</label>
+                            <input asp-for="Phone" class="form-control border-0 shadow-sm" style="background: #f8f9fa; border-radius: 8px;" placeholder="123-456-7890" required />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="TargetJobTitle" class="form-label fw-bold">Target Job Title *</label>
+                            <input asp-for="TargetJobTitle" class="form-control border-0 shadow-sm" style="background: #f8f9fa; border-radius: 8px;" placeholder="e.g., Software Developer" required />
+                            <span asp-validation-for="TargetJobTitle" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Summary -->
+            <div class="col-md-6">
+                <div class="card mb-4 border-0 shadow-lg">
+                    <div class="card-header text-white py-3" style="background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);">
+                        <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Professional Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label asp-for="Summary" class="form-label fw-bold">Professional Summary *</label>
+                            <textarea asp-for="Summary" class="form-control border-0 shadow-sm" rows="6" style="background: #f8f9fa; border-radius: 8px;" 
+                                      placeholder="Describe your professional background, key achievements, skills, and career objectives..." required></textarea>
+                            <span asp-validation-for="Summary" class="text-danger small"></span>
+                            <small class="form-text text-muted">Write a compelling summary of your professional experience and career goals</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education Section -->
+        <div class="card mb-4 border-0 shadow-lg">
+            <div class="card-header text-white py-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);">
+                <h5 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Education</h5>
+                <button type="button" class="btn btn-light btn-sm" onclick="addEducation()">
+                    <i class="fas fa-plus me-1"></i> Add Education
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="educationSection">
+                    <div class="education-item border p-3 mb-3 rounded" style="background: #f8f9fa; border-radius: 8px;">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Institution *</label>
+                                    <input name="Educations[0].Institution" class="form-control border-0 shadow-sm" style="border-radius: 6px;" placeholder="University Name" required />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Degree *</label>
+                                    <input name="Educations[0].Degree" class="form-control border-0 shadow-sm" style="border-radius: 6px;" placeholder="Bachelor's, Master's, etc." required />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Field of Study *</label>
+                                    <input name="Educations[0].Field" class="form-control border-0 shadow-sm" style="border-radius: 6px;" placeholder="Computer Science, Business, etc." required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Graduation Year *</label>
+                                    <input name="Educations[0].GraduationYear" class="form-control border-0 shadow-sm" type="number" style="border-radius: 6px;" placeholder="2023" min="1900" max="2030" required />
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-danger btn-sm" style="border-radius: 6px;" onclick="this.parentElement.remove()">
+                            <i class="fas fa-trash me-1"></i> Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Work Experience Section -->
+        <div class="card mb-4 border-0 shadow-lg">
+            <div class="card-header text-white py-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);">
+                <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i>Work Experience</h5>
+                <button type="button" class="btn btn-light btn-sm" onclick="addExperience()">
+                    <i class="fas fa-plus me-1"></i> Add Experience
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="experienceSection">
+                    <div class="experience-item border p-3 mb-3 rounded" style="background: #f8f9fa; border-radius: 8px;">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Company *</label>
+                                    <input name="Experiences[0].Company" class="form-control border-0 shadow-sm" style="border-radius: 6px;" placeholder="Company Name" required />
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Position *</label>
+                                    <input name="Experiences[0].Position" class="form-control border-0 shadow-sm" style="border-radius: 6px;" placeholder="Job Title" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Start Year *</label>
+                                    <input name="Experiences[0].StartDate" class="form-control border-0 shadow-sm" type="number" style="border-radius: 6px;" placeholder="2020" min="1900" max="2030" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-bold">Description *</label>
+                            <textarea name="Experiences[0].Description" class="form-control border-0 shadow-sm" rows="3" style="border-radius: 6px;" placeholder="Describe your responsibilities, achievements, and key contributions..." required></textarea>
+                        </div>
+                       
+                        <div class="form-group mb-3" id="endDateGroup0">
+                            <label class="form-label fw-bold">End Year</label>
+                            <input name="Experiences[0].EndDate" class="form-control border-0 shadow-sm" type="number" style="border-radius: 6px;" placeholder="2023" min="1900" max="2030" />
+                        </div>
+                        <button type="button" class="btn btn-danger btn-sm" style="border-radius: 6px;" onclick="this.parentElement.remove()">
+                            <i class="fas fa-trash me-1"></i> Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills Section -->
+        <div class="card mb-4 border-0 shadow-lg">
+            <div class="card-header text-white py-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);">
+                <h5 class="mb-0"><i class="fas fa-tools me-2"></i>Skills</h5>
+                <button type="button" class="btn btn-light btn-sm" onclick="addSkill()">
+                    <i class="fas fa-plus me-1"></i> Add Skill
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="skillsSection">
+                    <div class="skill-item border p-3 mb-3 rounded" style="background: #f8f9fa; border-radius: 8px;">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Skill Name *</label>
+                                    <input name="Skills[0].Name" class="form-control border-0 shadow-sm" style="border-radius: 6px;" placeholder="e.g., JavaScript, Project Management" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Level *</label>
+                                    <select name="Skills[0].Level" class="form-control border-0 shadow-sm" style="border-radius: 6px;" required>
+                                        <option value="">Select Level</option>
+                                        <option value="Beginner">Beginner</option>
+                                        <option value="Intermediate">Intermediate</option>
+                                        <option value="Advanced">Advanced</option>
+                                        <option value="Expert">Expert</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Category</label>
+                                    <input name="Skills[0].Category" class="form-control border-0 shadow-sm" style="border-radius: 6px;" placeholder="Technical, Soft, etc." />
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-danger btn-sm" style="border-radius: 6px;" onclick="this.parentElement.remove()">
+                            <i class="fas fa-trash me-1"></i> Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group text-center py-4">
+            <button type="submit" class="btn btn-primary btn-lg px-5 py-3 fw-bold" style="border-radius: 10px; background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); border: none;">
+                <i class="fas fa-file-download me-2"></i> Generate Professional Resume
+            </button>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary btn-lg ms-3 px-4 py-3" style="border-radius: 10px;">
+                <i class="fas fa-times me-2"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        let educationCount = 1;
+        let experienceCount = 1;
+        let skillCount = 1;
+
+        console.log("Professional Resume Builder loaded");
+
+        function addEducation() {
+            console.log("Adding education section");
+            const html = `
+                <div class="education-item border p-3 mb-3 rounded" style="background: #f8f9fa; border-radius: 8px;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Institution *</label>
+                                <input name="Educations[${educationCount}].Institution" class="form-control border-0 shadow-sm" style="border-radius: 6px;" placeholder="University Name" required />
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Degree *</label>
+                                <input name="Educations[${educationCount}].Degree" class="form-control border-0 shadow-sm" style="border-radius: 6px;" placeholder="Bachelor's, Master's, etc." required />
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Field of Study *</label>
+                                <input name="Educations[${educationCount}].Field" class="form-control border-0 shadow-sm" style="border-radius: 6px;" placeholder="Computer Science, Business, etc." required />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Graduation Year *</label>
+                                <input name="Educations[${educationCount}].GraduationYear" class="form-control border-0 shadow-sm" type="number" style="border-radius: 6px;" placeholder="2023" min="1900" max="2030" required />
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm" style="border-radius: 6px;" onclick="this.parentElement.remove()">
+                        <i class="fas fa-trash me-1"></i> Remove
+                    </button>
+                </div>
+            `;
+            document.getElementById('educationSection').insertAdjacentHTML('beforeend', html);
+            educationCount++;
+            console.log(`Education sections count: ${educationCount}`);
+        }
+
+        function addExperience() {
+            const html = `
+                <div class="experience-item border p-3 mb-3 rounded" style="background: #f8f9fa; border-radius: 8px;">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Company *</label>
+                                <input name="Experiences[${experienceCount}].Company" class="form-control border-0 shadow-sm" style="border-radius: 6px;" placeholder="Company Name" required />
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Position *</label>
+                                <input name="Experiences[${experienceCount}].Position" class="form-control border-0 shadow-sm" style="border-radius: 6px;" placeholder="Job Title" required />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Start Year *</label>
+                                <input name="Experiences[${experienceCount}].StartDate" class="form-control border-0 shadow-sm" type="number" style="border-radius: 6px;" placeholder="2020" min="1900" max="2030" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-bold">Description *</label>
+                        <textarea name="Experiences[${experienceCount}].Description" class="form-control border-0 shadow-sm" rows="3" style="border-radius: 6px;" placeholder="Describe your responsibilities, achievements, and key contributions..." required></textarea>
+                    </div>
+                    <div class="form-group mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="Experiences[${experienceCount}].IsCurrent" id="exp${experienceCount}Current" onchange="toggleEndDate(${experienceCount})">
+                            <label class="form-check-label fw-bold" for="exp${experienceCount}Current">
+                                I currently work here
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3" id="endDateGroup${experienceCount}">
+                        <label class="form-label fw-bold">End Year</label>
+                        <input name="Experiences[${experienceCount}].EndDate" class="form-control border-0 shadow-sm" type="number" style="border-radius: 6px;" placeholder="2023" min="1900" max="2030" />
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm" style="border-radius: 6px;" onclick="this.parentElement.remove()">
+                        <i class="fas fa-trash me-1"></i> Remove
+                    </button>
+                </div>
+            `;
+            document.getElementById('experienceSection').insertAdjacentHTML('beforeend', html);
+            experienceCount++;
+        }
+
+        function addSkill() {
+            const html = `
+                <div class="skill-item border p-3 mb-3 rounded" style="background: #f8f9fa; border-radius: 8px;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Skill Name *</label>
+                                <input name="Skills[${skillCount}].Name" class="form-control border-0 shadow-sm" style="border-radius: 6px;" placeholder="e.g., JavaScript, Project Management" required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Level *</label>
+                                <select name="Skills[${skillCount}].Level" class="form-control border-0 shadow-sm" style="border-radius: 6px;" required>
+                                    <option value="">Select Level</option>
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Intermediate">Intermediate</option>
+                                    <option value="Advanced">Advanced</option>
+                                    <option value="Expert">Expert</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Category</label>
+                                <input name="Skills[${skillCount}].Category" class="form-control border-0 shadow-sm" style="border-radius: 6px;" placeholder="Technical, Soft, etc." />
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm" style="border-radius: 6px;" onclick="this.parentElement.remove()">
+                        <i class="fas fa-trash me-1"></i> Remove
+                    </button>
+                </div>
+            `;
+            document.getElementById('skillsSection').insertAdjacentHTML('beforeend', html);
+            skillCount++;
+        }
+
+        function toggleEndDate(index) {
+            const endDateGroup = document.getElementById(`endDateGroup${index}`);
+            const checkbox = document.querySelector(`input[name="Experiences[${index}].IsCurrent"]`);
+            
+            if (checkbox && checkbox.checked) {
+                endDateGroup.style.display = 'none';
+                const endDateInput = document.querySelector(`input[name="Experiences[${index}].EndDate"]`);
+                if (endDateInput) {
+                    endDateInput.value = '';
+                }
+            } else {
+                endDateGroup.style.display = 'block';
+            }
+        }
+
+        // Initialize end date visibility
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleEndDate(0);
+            console.log("Page initialized successfully");
+        });
+    </script>
+
+    <style>
+        .form-control:focus {
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25) !important;
+            border-color: #3498db !important;
+        }
+
+        .card {
+            transition: transform 0.2s ease-in-out;
+            border-radius: 12px;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            transition: all 0.2s ease-in-out;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .education-item, .experience-item, .skill-item {
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef !important;
+        }
+
+        .education-item:hover, .experience-item:hover, .skill-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+            border-color: #3498db !important;
+        }
+
+        .card-header {
+            border-radius: 12px 12px 0 0 !important;
+        }
+    </style>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+}

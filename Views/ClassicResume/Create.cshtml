@@ -1,0 +1,455 @@
+@model AIResumeBuilder.Models.Resume
+
+@{
+    ViewData["Title"] = "Create Classic Resume";
+}
+
+<div class="container">
+    <div class="text-center mb-4">
+        <h2 style="color: #2c3e50; border-bottom: 2px solid #2c3e50; padding-bottom: 10px; display: inline-block;">Create Classic Resume</h2>
+        <p class="text-muted mt-2">Traditional and formal layout for academic positions</p>
+    </div>
+    
+    <form asp-action="Create" method="post" id="resumeForm">
+        @Html.AntiForgeryToken()
+        
+        <div class="row">
+            <!-- Personal Information -->
+            <div class="col-md-6">
+                <div class="card mb-4" style="border: 1px solid #bdc3c7;">
+                    <div class="card-header" style="background: #2c3e50; color: white; border-bottom: 2px solid #34495e;">
+                        <h5 class="mb-0">Personal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label asp-for="FullName" class="form-label fw-bold"></label>
+                            <input asp-for="FullName" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="Enter your full name" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="Email" class="form-label fw-bold"></label>
+                            <input asp-for="Email" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="your.email@example.com" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="Phone" class="form-label fw-bold"></label>
+                            <input asp-for="Phone" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="123-456-7890" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="TargetJobTitle" class="form-label fw-bold"></label>
+                            <input asp-for="TargetJobTitle" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="e.g., Software Developer" />
+                            <span asp-validation-for="TargetJobTitle" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Summary -->
+            <div class="col-md-6">
+                <div class="card mb-4" style="border: 1px solid #bdc3c7;">
+                    <div class="card-header d-flex justify-content-between align-items-center" style="background: #2c3e50; color: white; border-bottom: 2px solid #34495e;">
+                        <h5 class="mb-0">Professional Summary</h5>
+                     <!--   <button type="button" class="btn btn-sm btn-light" onclick="generateAIContent('summary')">
+                            🤖 AI Generate
+                        </button>-->
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label asp-for="Summary" class="form-label fw-bold"></label>
+                            <textarea asp-for="Summary" class="form-control" rows="6" style="border: 1px solid #bdc3c7;" id="summaryText" 
+                                      placeholder="Describe your professional background, skills, and career objectives..."></textarea>
+                            <span asp-validation-for="Summary" class="text-danger"></span>
+                            <small class="form-text text-muted">Brief overview of your professional background</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education Section -->
+        <div class="card mb-4" style="border: 1px solid #bdc3c7;">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background: #2c3e50; color: white; border-bottom: 2px solid #34495e;">
+                <h5 class="mb-0">Education</h5>
+                <button type="button" class="btn btn-sm btn-light" onclick="addEducation()">
+                    + Add Education
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="educationSection">
+                    <!-- First education item -->
+                    <div class="education-item border p-3 mb-3" style="border-color: #bdc3c7 !important;">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Institution *</label>
+                                    <input name="Educations[0].Institution" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="University Name" required />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Degree *</label>
+                                    <input name="Educations[0].Degree" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="Bachelor's, Master's, etc." required />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Field of Study *</label>
+                                    <input name="Educations[0].Field" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="Computer Science, Business, etc." required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Graduation Year *</label>
+                                    <input name="Educations[0].GraduationYear" class="form-control" style="border: 1px solid #bdc3c7;" type="number" placeholder="2023" required />
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Work Experience Section -->
+        <div class="card mb-4" style="border: 1px solid #bdc3c7;">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background: #2c3e50; color: white; border-bottom: 2px solid #34495e;">
+                <h5 class="mb-0">Work Experience</h5>
+                <button type="button" class="btn btn-sm btn-light" onclick="addExperience()">
+                    + Add Experience
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="experienceSection">
+                    <!-- First experience item -->
+                    <div class="experience-item border p-3 mb-3" style="border-color: #bdc3c7 !important;">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Company *</label>
+                                    <input name="Experiences[0].Company" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="Company Name" required />
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Position *</label>
+                                    <input name="Experiences[0].Position" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="Job Title" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Start Year *</label>
+                                    <input name="Experiences[0].StartDate" class="form-control" style="border: 1px solid #bdc3c7;" type="number" placeholder="2020" min="1900" max="2030" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-bold">Description *</label>
+                            <textarea name="Experiences[0].Description" class="form-control" style="border: 1px solid #bdc3c7;" rows="3" placeholder="Describe your responsibilities and achievements..." required></textarea>
+                        </div>
+                    
+                        <div class="form-group mb-3" id="endDateGroup0">
+                            <label class="form-label fw-bold">End Year</label>
+                            <input name="Experiences[0].EndDate" class="form-control" style="border: 1px solid #bdc3c7;" type="number" placeholder="2023" min="1900" max="2030" />
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills Section -->
+        <div class="card mb-4" style="border: 1px solid #bdc3c7;">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background: #2c3e50; color: white; border-bottom: 2px solid #34495e;">
+                <h5 class="mb-0">Skills</h5>
+                <button type="button" class="btn btn-sm btn-light" onclick="addSkill()">
+                    + Add Skill
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="skillsSection">
+                    <!-- First skill item -->
+                    <div class="skill-item border p-3 mb-3" style="border-color: #bdc3c7 !important;">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Skill Name *</label>
+                                    <input name="Skills[0].Name" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="e.g., JavaScript, Project Management" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Level *</label>
+                                    <select name="Skills[0].Level" class="form-control" style="border: 1px solid #bdc3c7;" required>
+                                        <option value="">Select Level</option>
+                                        <option value="Beginner">Beginner</option>
+                                        <option value="Intermediate">Intermediate</option>
+                                        <option value="Advanced">Advanced</option>
+                                        <option value="Expert">Expert</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Category</label>
+                                    <input name="Skills[0].Category" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="Technical, Soft, etc." />
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group text-center">
+            <button type="submit" class="btn btn-dark btn-lg" style="background: #2c3e50; border-color: #2c3e50; padding: 12px 30px;">
+                📜 Generate Classic Resume
+            </button>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-secondary btn-lg">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        let educationCount = 1;
+        let experienceCount = 1;
+        let skillCount = 1;
+
+        console.log("Classic Create page loaded - dynamic sections enabled");
+
+        function addEducation() {
+            const html = `
+                <div class="education-item border p-3 mb-3" style="border-color: #bdc3c7 !important;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Institution *</label>
+                                <input name="Educations[${educationCount}].Institution" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="University Name" required />
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Degree *</label>
+                                <input name="Educations[${educationCount}].Degree" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="Bachelor's, Master's, etc." required />
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Field of Study *</label>
+                                <input name="Educations[${educationCount}].Field" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="Computer Science, Business, etc." required />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Graduation Year *</label>
+                                <input name="Educations[${educationCount}].GraduationYear" class="form-control" style="border: 1px solid #bdc3c7;" type="number" placeholder="2023" required />
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()">Remove</button>
+                </div>
+            `;
+            document.getElementById('educationSection').insertAdjacentHTML('beforeend', html);
+            educationCount++;
+            console.log(`Added education section, count: ${educationCount}`);
+        }
+
+        function addExperience() {
+            const html = `
+                <div class="experience-item border p-3 mb-3" style="border-color: #bdc3c7 !important;">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Company *</label>
+                                <input name="Experiences[${experienceCount}].Company" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="Company Name" required />
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Position *</label>
+                                <input name="Experiences[${experienceCount}].Position" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="Job Title" required />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Start Year *</label>
+                                <input name="Experiences[${experienceCount}].StartDate" class="form-control" style="border: 1px solid #bdc3c7;" type="number" placeholder="2020" min="1900" max="2030" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-bold">Description *</label>
+                        <textarea name="Experiences[${experienceCount}].Description" class="form-control" style="border: 1px solid #bdc3c7;" rows="3" placeholder="Describe your responsibilities and achievements..." required></textarea>
+                    </div>
+                    <div class="form-group mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="Experiences[${experienceCount}].IsCurrent" id="exp${experienceCount}Current" onchange="toggleEndDate(${experienceCount})">
+                            <label class="form-check-label" for="exp${experienceCount}Current">
+                                I currently work here
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3" id="endDateGroup${experienceCount}">
+                        <label class="form-label fw-bold">End Year</label>
+                        <input name="Experiences[${experienceCount}].EndDate" class="form-control" style="border: 1px solid #bdc3c7;" type="number" placeholder="2023" min="1900" max="2030" />
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()">Remove</button>
+                </div>
+            `;
+            document.getElementById('experienceSection').insertAdjacentHTML('beforeend', html);
+            experienceCount++;
+            console.log(`Added experience section, count: ${experienceCount}`);
+        }
+
+        function addSkill() {
+            const html = `
+                <div class="skill-item border p-3 mb-3" style="border-color: #bdc3c7 !important;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Skill Name *</label>
+                                <input name="Skills[${skillCount}].Name" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="e.g., JavaScript, Project Management" required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Level *</label>
+                                <select name="Skills[${skillCount}].Level" class="form-control" style="border: 1px solid #bdc3c7;" required>
+                                    <option value="">Select Level</option>
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Intermediate">Intermediate</option>
+                                    <option value="Advanced">Advanced</option>
+                                    <option value="Expert">Expert</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Category</label>
+                                <input name="Skills[${skillCount}].Category" class="form-control" style="border: 1px solid #bdc3c7;" placeholder="Technical, Soft, etc." />
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()">Remove</button>
+                </div>
+            `;
+            document.getElementById('skillsSection').insertAdjacentHTML('beforeend', html);
+            skillCount++;
+            console.log(`Added skill section, count: ${skillCount}`);
+        }
+
+        function toggleEndDate(index) {
+            const endDateGroup = document.getElementById(`endDateGroup${index}`);
+            const checkbox = document.querySelector(`input[name="Experiences[${index}].IsCurrent"]`);
+            
+            if (checkbox.checked) {
+                endDateGroup.style.display = 'none';
+                // Clear end date when "current job" is checked
+                document.querySelector(`input[name="Experiences[${index}].EndDate"]`).value = '';
+            } else {
+                endDateGroup.style.display = 'block';
+            }
+        }
+
+        // Initialize end date visibility
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleEndDate(0); // Initialize for first experience item
+        });
+
+        // AI Content Generation Function
+        async function generateAIContent(section) {
+            const jobTitle = document.querySelector('#TargetJobTitle').value;
+            const fullName = document.querySelector('#FullName').value;
+            
+            if (!jobTitle) {
+                alert('Please enter a target job title first');
+                return;
+            }
+
+            if (!fullName) {
+                alert('Please enter your full name first');
+                return;
+            }
+
+            try {
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = '⏳ AI Generating...';
+                button.disabled = true;
+
+                // Get form data for context
+                const formData = new FormData(document.getElementById('resumeForm'));
+                const experiences = [];
+                const educations = [];
+                const skills = [];
+
+                // Collect experiences
+                for (let i = 0; i < experienceCount; i++) {
+                    const company = formData.get(`Experiences[${i}].Company`);
+                    const position = formData.get(`Experiences[${i}].Position`);
+                    if (company && position) {
+                        experiences.push({ company, position });
+                    }
+                }
+
+                // Collect education
+                for (let i = 0; i < educationCount; i++) {
+                    const institution = formData.get(`Educations[${i}].Institution`);
+                    const degree = formData.get(`Educations[${i}].Degree`);
+                    if (institution && degree) {
+                        educations.push({ institution, degree });
+                    }
+                }
+
+                // Collect skills
+                for (let i = 0; i < skillCount; i++) {
+                    const skillName = formData.get(`Skills[${i}].Name`);
+                    if (skillName) {
+                        skills.push(skillName);
+                    }
+                }
+
+                const response = await fetch('/ClassicResume/GenerateAIContent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        section: section,
+                        jobTitle: jobTitle,
+                        fullName: fullName,
+                        experiences: experiences,
+                        educations: educations,
+                        skills: skills
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                
+                button.innerHTML = originalText;
+                button.disabled = false;
+
+                if (data.success && data.content) {
+                    document.querySelector('#summaryText').value = data.content;
+                } else {
+                    alert('Error generating AI content: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error generating AI content:', error);
+                alert('Error generating AI content. Please try again.');
+                const button = event.target;
+                button.innerHTML = '🤖 AI Generate';
+                button.disabled = false;
+            }
+        }
+    </script>
+}

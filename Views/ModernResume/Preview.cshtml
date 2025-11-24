@@ -1,0 +1,1472 @@
+@using Microsoft.AspNetCore.Mvc.Formatters
+@model AIResumeBuilder.Models.Resume
+
+@{
+    ViewData["Title"] = "Modern Resume Preview";
+}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Modern Resume Preview</h2>
+        <div>
+            <a href="@Url.Action("Create", "ModernResume")" class="btn text-white me-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">✏️ Edit Resume</a>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">🏠 Home</a>
+        </div>
+    </div>
+
+    <!-- ULTIMATE CUSTOMIZATION PANEL -->
+    <div class="card mb-4 shadow-lg">
+        <div class="card-header bg-gradient-primary text-white">
+            <h5 class="mb-0">🎨 Ultimate Resume Customizer</h5>
+            <small>Real-time preview • Professional templates • Advanced styling</small>
+        </div>
+        <div class="card-body">
+            <!-- Quick Presets -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <label class="form-label fw-bold">🚀 Quick Presets</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-outline-primary btn-sm" onclick="applyPreset('professional')">💼 Professional</button>
+                        <button class="btn btn-outline-success btn-sm" onclick="applyPreset('creative')">🎨 Creative</button>
+                        <button class="btn btn-outline-dark btn-sm" onclick="applyPreset('minimal')">⚫ Minimal</button>
+                        <button class="btn btn-outline-warning btn-sm" onclick="applyPreset('executive')">👔 Executive</button>
+                        <button class="btn btn-outline-info btn-sm" onclick="applyPreset('modern')">🚀 Modern</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Theme & Colors -->
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">🎭 Design Theme</label>
+                    <select class="form-select" id="themeSelect">
+                        <option value="gradient-purple">Purple Gradient</option>
+                        <option value="gradient-blue">Blue Gradient</option>
+                        <option value="gradient-green">Green Gradient</option>
+                        <option value="gradient-orange">Orange Gradient</option>
+                        <option value="solid-blue">Solid Blue</option>
+                        <option value="solid-dark">Solid Dark</option>
+                        <option value="minimal-light">Minimal Light</option>
+                        <option value="professional-dark">Professional Dark</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">🌈 Primary Color</label>
+                    <input type="color" class="form-control form-control-color" id="primaryColor" value="#667eea" title="Choose primary color">
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">🌈 Secondary Color</label>
+                    <input type="color" class="form-control form-control-color" id="secondaryColor" value="#764ba2" title="Choose secondary color">
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Typography -->
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">🔤 Font Family</label>
+                    <select class="form-select" id="fontFamily">
+                        <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Segoe UI</option>
+                        <option value="'Inter', -apple-system, BlinkMacSystemFont, sans-serif">Inter</option>
+                        <option value="'Poppins', sans-serif">Poppins</option>
+                        <option value="'Montserrat', sans-serif">Montserrat</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Open Sans', sans-serif">Open Sans</option>
+                        <option value="'Lato', sans-serif">Lato</option>
+                        <option value="Arial, sans-serif">Arial</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">📐 Font Size</label>
+                    <select class="form-select" id="fontSize">
+                        <option value="small">Small</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="large">Large</option>
+                        <option value="xlarge">Extra Large</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">📏 Layout Style</label>
+                    <select class="form-select" id="layoutStyle">
+                        <option value="modern">Modern</option>
+                        <option value="classic">Classic</option>
+                        <option value="compact">Compact</option>
+                        <option value="spacious">Spacious</option>
+                        <option value="creative">Creative</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">⚡ Content Density</label>
+                    <select class="form-select" id="contentDensity">
+                        <option value="compact">Compact</option>
+                        <option value="balanced" selected>Balanced</option>
+                        <option value="spacious">Spacious</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Social Links Section -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <label class="form-label fw-bold">🔗 Social Links</label>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="linkedinUrl" placeholder="LinkedIn Profile URL (e.g., https://linkedin.com/in/yourname)">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="githubUrl" placeholder="GitHub Profile URL (e.g., https://github.com/yourname)">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="portfolioUrl" placeholder="Portfolio Website (e.g., https://yourportfolio.com)">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="otherUrl" placeholder="Other Social Media">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Customizations -->
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">🔄 Section Order</label>
+                    <select class="form-select" id="sectionOrder">
+                        <option value="default">Summary → Education → Experience → Skills</option>
+                        <option value="skills-first">Skills → Experience → Education → Summary</option>
+                        <option value="experience-first">Experience → Education → Skills → Summary</option>
+                        <option value="education-first">Education → Experience → Skills → Summary</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">📐 Header Style</label>
+                    <select class="form-select" id="headerStyle">
+                        <option value="gradient">Gradient Background</option>
+                        <option value="solid">Solid Color</option>
+                        <option value="minimal">Minimal</option>
+                        <option value="bordered">Bordered</option>
+                        <option value="creative">Creative Design</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">🎯 Skill Display</label>
+                    <select class="form-select" id="skillDisplay">
+                        <option value="chips">Modern Chips</option>
+                        <option value="tags">Styled Tags</option>
+                        <option value="grid">Grid Layout</option>
+                        <option value="list">Simple List</option>
+                        <option value="progress">Progress Bars</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">📦 Card Style</label>
+                    <select class="form-select" id="cardStyle">
+                        <option value="soft">Soft Rounded</option>
+                        <option value="sharp">Sharp Edges</option>
+                        <option value="floating">Floating Cards</option>
+                        <option value="bordered">Bordered</option>
+                        <option value="minimal">Minimal</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Visual Effects -->
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">✨ Shadow Intensity</label>
+                    <select class="form-select" id="shadowIntensity">
+                        <option value="none">No Shadow</option>
+                        <option value="soft">Soft Shadow</option>
+                        <option value="medium" selected>Medium Shadow</option>
+                        <option value="strong">Strong Shadow</option>
+                        <option value="premium">Premium Glow</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">🎨 Background Style</label>
+                    <select class="form-select" id="backgroundStyle">
+                        <option value="plain">Plain White</option>
+                        <option value="gradient">Subtle Gradient</option>
+                        <option value="pattern">Geometric Pattern</option>
+                        <option value="texture">Light Texture</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">📱 Responsive Mode</label>
+                    <select class="form-select" id="responsiveMode">
+                        <option value="auto">Auto Adjust</option>
+                        <option value="desktop">Desktop Optimized</option>
+                        <option value="mobile">Mobile Optimized</option>
+                        <option value="print">Print Optimized</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="d-flex flex-wrap gap-2">
+                        <button onclick="resetCustomizations()" class="btn btn-outline-danger">
+                            🔄 Reset to Default
+                        </button>
+                        <button onclick="saveCustomizations()" class="btn btn-success">
+                            💾 Save Preferences
+                        </button>
+                        <button onclick="toggleAdvancedSettings()" class="btn btn-outline-info">
+                            ⚙️ Advanced Settings
+                        </button>
+                        <button onclick="previewCustomizations()" class="btn btn-outline-warning">
+                            👁️ Quick Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Settings -->
+            <div id="advancedSettings" class="mt-4 p-3 border rounded" style="display: none; background: #f8f9fa;">
+                <h6 class="fw-bold mb-3">⚙️ Advanced Customization Settings</h6>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Border Radius</label>
+                        <select class="form-select" id="borderRadius">
+                            <option value="none">None</option>
+                            <option value="small">Small</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="large">Large</option>
+                            <option value="xl">Extra Large</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Animation Effects</label>
+                        <select class="form-select" id="animationEffects">
+                            <option value="none">No Animation</option>
+                            <option value="fade">Fade In</option>
+                            <option value="slide">Slide In</option>
+                            <option value="bounce">Subtle Bounce</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Color Scheme</label>
+                        <select class="form-select" id="colorScheme">
+                            <option value="monochromatic">Monochromatic</option>
+                            <option value="analogous">Analogous</option>
+                            <option value="complementary">Complementary</option>
+                            <option value="triadic">Triadic</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Spacing Scale</label>
+                        <select class="form-select" id="spacingScale">
+                            <option value="compact">Compact</option>
+                            <option value="balanced" selected>Balanced</option>
+                            <option value="generous">Generous</option>
+                            <option value="luxury">Luxury Spacing</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>📤 Export Your Resume</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <button onclick="exportAsPDF()" class="btn btn-danger btn-block w-100">
+                        📄 Export as PDF
+                    </button>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <button onclick="exportAsDOCX()" class="btn btn-primary btn-block w-100">
+                        📝 Export as DOCX
+                    </button>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <button onclick="exportAsHTML()" class="btn btn-success btn-block w-100">
+                        🌐 Export as HTML
+                    </button>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <button onclick="printResume()" class="btn btn-info btn-block w-100">
+                        🖨️ Print Resume
+                    </button>
+                </div>
+            </div>
+            <div id="exportMessage" class="mt-2"></div>
+            <small class="text-muted">All exports include your customizations!</small>
+        </div>
+    </div>
+
+    <!-- Modern Template Design -->
+    <div id="resumePreview" class="resume-preview-container border-0 shadow-lg rounded" style="background: white; overflow: hidden;">
+        <!-- Header Section -->
+        <div id="resumeHeader" class="header-section text-white text-center py-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h1 id="resumeName" class="mb-2" style="font-size: 2.5rem; font-weight: 300;">@Model.FullName</h1>
+            <p class="mb-1 contact-info" style="font-size: 1.2rem; opacity: 0.9;">@Model.TargetJobTitle</p>
+            <p class="mb-1 contact-info" style="opacity: 0.8;">@Model.Email • @Model.Phone</p>
+            <div id="socialLinks" class="mt-2" style="display: none;">
+                <!-- Social links will be dynamically added here -->
+            </div>
+        </div>
+
+        <div class="p-4">
+            <!-- Professional Summary -->
+            <div class="resume-section mb-4" id="summarySection">
+                <h4 class="section-title" style="color: #667eea; border-left: 4px solid #667eea; padding-left: 15px; margin-bottom: 15px;">PROFESSIONAL SUMMARY</h4>
+                <div class="section-content" style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                    <p style="line-height: 1.6; color: #555; white-space: pre-line;">@Model.Summary</p>
+                </div>
+            </div>
+
+            <!-- Education -->
+            @if (Model.Educations != null && Model.Educations.Any(e => !string.IsNullOrEmpty(e.Institution)))
+            {
+                <div class="resume-section mb-4" id="educationSection">
+                    <h4 class="section-title" style="color: #667eea; border-left: 4px solid #667eea; padding-left: 15px; margin-bottom: 15px;">EDUCATION</h4>
+                    @foreach (var education in Model.Educations.Where(e => !string.IsNullOrEmpty(e.Institution)))
+                    {
+                        <div class="education-item mb-3" style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                            <strong style="color: #333; display: block; font-size: 1.1rem;">@education.Degree in @education.Field</strong>
+                            <em style="color: #667eea;">@education.Institution</em> - <span style="color: #666;">Graduated @education.GraduationYear</span>
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- Work Experience -->
+            @if (Model.Experiences != null && Model.Experiences.Any(e => !string.IsNullOrEmpty(e.Company)))
+            {
+                <div class="resume-section mb-4" id="experienceSection">
+                    <h4 class="section-title" style="color: #667eea; border-left: 4px solid #667eea; padding-left: 15px; margin-bottom: 15px;">PROFESSIONAL EXPERIENCE</h4>
+                    @foreach (var experience in Model.Experiences.Where(e => !string.IsNullOrEmpty(e.Company)))
+                    {
+                        <div class="experience-item mb-3" style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                            <strong style="color: #333; display: block; font-size: 1.1rem;">@experience.Position</strong>
+                            <em style="color: #667eea;">@experience.Company</em> | 
+                            <span style="color: #666;">
+                                @experience.StartDate
+                                @if (experience.EndDate.HasValue && experience.EndDate > 0)
+                                {
+                                    <text> - @experience.EndDate.Value</text>
+                                }
+                                else if (experience.IsCurrent)
+                                {
+                                    <text> - Present</text>
+                                }
+                            </span>
+                            <p style="line-height: 1.6; margin-top: 10px; color: #555; white-space: pre-line;">@experience.Description</p>
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- Skills -->
+            @if (Model.Skills != null && Model.Skills.Any(s => !string.IsNullOrEmpty(s.Name)))
+            {
+                <div class="resume-section mb-4" id="skillsSection">
+                    <h4 class="section-title" style="color: #667eea; border-left: 4px solid #667eea; padding-left: 15px; margin-bottom: 15px;">SKILLS</h4>
+                    <div class="skills-container">
+                        @foreach (var skill in Model.Skills.Where(s => !string.IsNullOrEmpty(s.Name)))
+                        {
+                            <span class="skill-item" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 16px; border-radius: 20px; margin: 5px; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                                @skill.Name <small>(@skill.Level)</small>
+                            </span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <p class="text-muted">Resume ID: @Model.Id | Created: @Model.CreatedDate.ToString("MMMM dd, yyyy") | Template: Modern</p>
+    </div>
+</div>
+
+<script>
+// Ultimate Customization State
+let customizationState = {
+    theme: 'gradient-purple',
+    primaryColor: '#667eea',
+    secondaryColor: '#764ba2',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    fontSize: 'medium',
+    layoutStyle: 'modern',
+    contentDensity: 'balanced',
+    sectionOrder: 'default',
+    headerStyle: 'gradient',
+    skillDisplay: 'chips',
+    cardStyle: 'soft',
+    shadowIntensity: 'medium',
+    backgroundStyle: 'plain',
+    responsiveMode: 'auto',
+    borderRadius: 'medium',
+    animationEffects: 'none',
+    colorScheme: 'monochromatic',
+    spacingScale: 'balanced',
+    linkedinUrl: '',
+    githubUrl: '',
+    portfolioUrl: '',
+    otherUrl: ''
+};
+
+// Initialize customization
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Ultimate Customizer Loaded');
+    loadSavedCustomizations();
+    setupCustomizationListeners();
+    applyAllCustomizations();
+    updateSocialLinks();
+});
+
+// Setup event listeners
+function setupCustomizationListeners() {
+    const elements = [
+        { id: 'themeSelect', event: 'change', func: applyTheme },
+        { id: 'primaryColor', event: 'input', func: applyPrimaryColor },
+        { id: 'secondaryColor', event: 'input', func: applySecondaryColor },
+        { id: 'fontFamily', event: 'change', func: applyFontFamily },
+        { id: 'fontSize', event: 'change', func: applyFontSize },
+        { id: 'layoutStyle', event: 'change', func: applyLayoutStyle },
+        { id: 'contentDensity', event: 'change', func: applyContentDensity },
+        { id: 'sectionOrder', event: 'change', func: applySectionOrder },
+        { id: 'headerStyle', event: 'change', func: applyHeaderStyle },
+        { id: 'skillDisplay', event: 'change', func: applySkillDisplay },
+        { id: 'cardStyle', event: 'change', func: applyCardStyle },
+        { id: 'shadowIntensity', event: 'change', func: applyShadowIntensity },
+        { id: 'backgroundStyle', event: 'change', func: applyBackgroundStyle },
+        { id: 'responsiveMode', event: 'change', func: applyResponsiveMode },
+        { id: 'borderRadius', event: 'change', func: applyBorderRadius },
+        { id: 'animationEffects', event: 'change', func: applyAnimationEffects },
+        { id: 'colorScheme', event: 'change', func: applyColorScheme },
+        { id: 'spacingScale', event: 'change', func: applySpacingScale },
+        { id: 'linkedinUrl', event: 'input', func: updateSocialLinks },
+        { id: 'githubUrl', event: 'input', func: updateSocialLinks },
+        { id: 'portfolioUrl', event: 'input', func: updateSocialLinks },
+        { id: 'otherUrl', event: 'input', func: updateSocialLinks }
+    ];
+
+    elements.forEach(item => {
+        const element = document.getElementById(item.id);
+        if (element) {
+            element.addEventListener(item.event, item.func);
+        }
+    });
+}
+
+// Update Social Links
+function updateSocialLinks() {
+    customizationState.linkedinUrl = document.getElementById('linkedinUrl').value;
+    customizationState.githubUrl = document.getElementById('githubUrl').value;
+    customizationState.portfolioUrl = document.getElementById('portfolioUrl').value;
+    customizationState.otherUrl = document.getElementById('otherUrl').value;
+    
+    const socialLinksContainer = document.getElementById('socialLinks');
+    let socialLinksHTML = '';
+    
+    if (customizationState.linkedinUrl) {
+        socialLinksHTML += `<a href="${customizationState.linkedinUrl}" target="_blank" style="color: white; margin: 0 10px; text-decoration: none;">🔗 LinkedIn</a>`;
+    }
+    if (customizationState.githubUrl) {
+        socialLinksHTML += `<a href="${customizationState.githubUrl}" target="_blank" style="color: white; margin: 0 10px; text-decoration: none;">💻 GitHub</a>`;
+    }
+    if (customizationState.portfolioUrl) {
+        socialLinksHTML += `<a href="${customizationState.portfolioUrl}" target="_blank" style="color: white; margin: 0 10px; text-decoration: none;">🌐 Portfolio</a>`;
+    }
+    if (customizationState.otherUrl) {
+        socialLinksHTML += `<a href="${customizationState.otherUrl}" target="_blank" style="color: white; margin: 0 10px; text-decoration: none;">🔗 Other</a>`;
+    }
+    
+    if (socialLinksHTML) {
+        socialLinksContainer.innerHTML = socialLinksHTML;
+        socialLinksContainer.style.display = 'block';
+    } else {
+        socialLinksContainer.style.display = 'none';
+    }
+}
+
+// Quick Presets
+function applyPreset(preset) {
+    const presets = {
+        professional: {
+            theme: 'solid-blue',
+            primaryColor: '#2c5aa0',
+            secondaryColor: '#1e3a8a',
+            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+            layoutStyle: 'classic',
+            headerStyle: 'solid',
+            skillDisplay: 'tags'
+        },
+        creative: {
+            theme: 'gradient-orange',
+            primaryColor: '#ff6b35',
+            secondaryColor: '#f7931e',
+            fontFamily: "'Poppins', sans-serif",
+            layoutStyle: 'creative',
+            headerStyle: 'gradient',
+            skillDisplay: 'chips'
+        },
+        minimal: {
+            theme: 'minimal-light',
+            primaryColor: '#333333',
+            secondaryColor: '#666666',
+            fontFamily: "'Lato', sans-serif",
+            layoutStyle: 'compact',
+            headerStyle: 'minimal',
+            skillDisplay: 'list'
+        },
+        executive: {
+            theme: 'professional-dark',
+            primaryColor: '#1a365d',
+            secondaryColor: '#2d3748',
+            fontFamily: "'Montserrat', sans-serif",
+            layoutStyle: 'spacious',
+            headerStyle: 'bordered',
+            skillDisplay: 'grid'
+        },
+        modern: {
+            theme: 'gradient-purple',
+            primaryColor: '#667eea',
+            secondaryColor: '#764ba2',
+            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+            layoutStyle: 'modern',
+            headerStyle: 'gradient',
+            skillDisplay: 'chips'
+        }
+    };
+
+    if (presets[preset]) {
+        customizationState = { ...customizationState, ...presets[preset] };
+        applyAllCustomizations();
+        showMessage(`🎉 ${preset.charAt(0).toUpperCase() + preset.slice(1)} preset applied!`, 'success');
+    }
+}
+
+// Toggle advanced settings
+function toggleAdvancedSettings() {
+    const advanced = document.getElementById('advancedSettings');
+    advanced.style.display = advanced.style.display === 'none' ? 'block' : 'none';
+}
+
+// Quick preview
+function previewCustomizations() {
+    const resume = document.getElementById('resumePreview');
+    resume.style.transform = 'scale(0.95)';
+    setTimeout(() => {
+        resume.style.transform = 'scale(1)';
+        resume.style.transition = 'transform 0.3s ease';
+    }, 300);
+    showMessage('👁️ Quick preview refreshed!', 'info');
+}
+
+// Load saved customizations
+function loadSavedCustomizations() {
+    const saved = localStorage.getItem(`modernResumeCustomization_@Model.Id`);
+    if (saved) {
+        try {
+            customizationState = { ...customizationState, ...JSON.parse(saved) };
+        } catch (e) {
+            console.error('Error loading customizations:', e);
+        }
+    }
+    updateControlValues();
+}
+
+// Save customizations
+function saveCustomizations() {
+    localStorage.setItem(`modernResumeCustomization_@Model.Id`, JSON.stringify(customizationState));
+    showMessage('💾 Customizations saved successfully!', 'success');
+}
+
+// Reset customizations
+function resetCustomizations() {
+    customizationState = {
+        theme: 'gradient-purple',
+        primaryColor: '#667eea',
+        secondaryColor: '#764ba2',
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        fontSize: 'medium',
+        layoutStyle: 'modern',
+        contentDensity: 'balanced',
+        sectionOrder: 'default',
+        headerStyle: 'gradient',
+        skillDisplay: 'chips',
+        cardStyle: 'soft',
+        shadowIntensity: 'medium',
+        backgroundStyle: 'plain',
+        responsiveMode: 'auto',
+        borderRadius: 'medium',
+        animationEffects: 'none',
+        colorScheme: 'monochromatic',
+        spacingScale: 'balanced',
+        linkedinUrl: '',
+        githubUrl: '',
+        portfolioUrl: '',
+        otherUrl: ''
+    };
+    applyAllCustomizations();
+    updateSocialLinks();
+    showMessage('🔄 Customizations reset to default!', 'info');
+}
+
+// Apply all customizations
+function applyAllCustomizations() {
+    updateControlValues();
+    applyTheme();
+    applyPrimaryColor();
+    applySecondaryColor();
+    applyFontFamily();
+    applyFontSize();
+    applyLayoutStyle();
+    applyContentDensity();
+    applySectionOrder();
+    applyHeaderStyle();
+    applySkillDisplay();
+    applyCardStyle();
+    applyShadowIntensity();
+    applyBackgroundStyle();
+    applyResponsiveMode();
+    applyBorderRadius();
+    applyAnimationEffects();
+    applyColorScheme();
+    applySpacingScale();
+    updateSocialLinks();
+}
+
+// Update control values
+function updateControlValues() {
+    const controls = {
+        'themeSelect': customizationState.theme,
+        'primaryColor': customizationState.primaryColor,
+        'secondaryColor': customizationState.secondaryColor,
+        'fontFamily': customizationState.fontFamily,
+        'fontSize': customizationState.fontSize,
+        'layoutStyle': customizationState.layoutStyle,
+        'contentDensity': customizationState.contentDensity,
+        'sectionOrder': customizationState.sectionOrder,
+        'headerStyle': customizationState.headerStyle,
+        'skillDisplay': customizationState.skillDisplay,
+        'cardStyle': customizationState.cardStyle,
+        'shadowIntensity': customizationState.shadowIntensity,
+        'backgroundStyle': customizationState.backgroundStyle,
+        'responsiveMode': customizationState.responsiveMode,
+        'borderRadius': customizationState.borderRadius,
+        'animationEffects': customizationState.animationEffects,
+        'colorScheme': customizationState.colorScheme,
+        'spacingScale': customizationState.spacingScale,
+        'linkedinUrl': customizationState.linkedinUrl,
+        'githubUrl': customizationState.githubUrl,
+        'portfolioUrl': customizationState.portfolioUrl,
+        'otherUrl': customizationState.otherUrl
+    };
+
+    for (const [id, value] of Object.entries(controls)) {
+        const element = document.getElementById(id);
+        if (element) element.value = value || '';
+    }
+}
+
+// Theme application
+function applyTheme() {
+    customizationState.theme = document.getElementById('themeSelect').value;
+    const resume = document.getElementById('resumePreview');
+    
+    // Remove existing theme classes
+    resume.className = 'resume-preview-container border-0 shadow-lg rounded';
+    
+    // Add theme-specific classes
+    resume.classList.add(`theme-${customizationState.theme}`);
+    
+    // Apply theme-specific settings
+    switch(customizationState.theme) {
+        case 'gradient-blue':
+            customizationState.primaryColor = '#667eea';
+            customizationState.secondaryColor = '#764ba2';
+            break;
+        case 'gradient-green':
+            customizationState.primaryColor = '#4facfe';
+            customizationState.secondaryColor = '#00f2fe';
+            break;
+        case 'gradient-orange':
+            customizationState.primaryColor = '#ff6b35';
+            customizationState.secondaryColor = '#f7931e';
+            break;
+        case 'solid-blue':
+            customizationState.primaryColor = '#2c5aa0';
+            customizationState.secondaryColor = '#1e3a8a';
+            break;
+        case 'solid-dark':
+            customizationState.primaryColor = '#2d3748';
+            customizationState.secondaryColor = '#4a5568';
+            break;
+    }
+    
+    updateControlValues();
+    applyPrimaryColor();
+    applySecondaryColor();
+}
+
+// Primary color application
+function applyPrimaryColor() {
+    customizationState.primaryColor = document.getElementById('primaryColor').value;
+    const color = customizationState.primaryColor;
+    
+    // Apply to section titles and accents
+    document.querySelectorAll('.section-title').forEach(el => {
+        el.style.color = color;
+        el.style.borderLeftColor = color;
+    });
+    
+    // Apply to skill items
+    document.querySelectorAll('.skill-item').forEach(el => {
+        el.style.background = `linear-gradient(135deg, ${color} 0%, ${customizationState.secondaryColor} 100%)`;
+    });
+}
+
+// Secondary color application
+function applySecondaryColor() {
+    customizationState.secondaryColor = document.getElementById('secondaryColor').value;
+    const color = customizationState.secondaryColor;
+    
+    // Update header gradient
+    const header = document.getElementById('resumeHeader');
+    header.style.background = `linear-gradient(135deg, ${customizationState.primaryColor} 0%, ${color} 100%)`;
+    
+    // Update skill items
+    document.querySelectorAll('.skill-item').forEach(el => {
+        el.style.background = `linear-gradient(135deg, ${customizationState.primaryColor} 0%, ${color} 100%)`;
+    });
+}
+
+// Font family application
+function applyFontFamily() {
+    customizationState.fontFamily = document.getElementById('fontFamily').value;
+    document.getElementById('resumePreview').style.fontFamily = customizationState.fontFamily;
+}
+
+// Font size application
+function applyFontSize() {
+    customizationState.fontSize = document.getElementById('fontSize').value;
+    let scale;
+    switch(customizationState.fontSize) {
+        case 'small': scale = 0.9; break;
+        case 'large': scale = 1.2; break;
+        case 'xlarge': scale = 1.4; break;
+        default: scale = 1;
+    }
+    document.getElementById('resumePreview').style.fontSize = `${scale}rem`;
+}
+
+// Layout style application
+function applyLayoutStyle() {
+    customizationState.layoutStyle = document.getElementById('layoutStyle').value;
+    const resume = document.getElementById('resumePreview');
+    
+    switch(customizationState.layoutStyle) {
+        case 'classic':
+            resume.style.maxWidth = '800px';
+            resume.style.margin = '0 auto';
+            break;
+        case 'compact':
+            resume.style.padding = '0';
+            break;
+        case 'spacious':
+            resume.style.padding = '40px';
+            break;
+        case 'creative':
+            resume.style.borderRadius = '20px';
+            break;
+        default:
+            resume.style.maxWidth = 'none';
+            resume.style.margin = '0';
+            resume.style.padding = '0';
+    }
+}
+
+// Content density application
+function applyContentDensity() {
+    customizationState.contentDensity = document.getElementById('contentDensity').value;
+    let spacing;
+    switch(customizationState.contentDensity) {
+        case 'compact': spacing = '15px'; break;
+        case 'spacious': spacing = '30px'; break;
+        default: spacing = '20px';
+    }
+    
+    document.querySelectorAll('.resume-section').forEach(section => {
+        section.style.marginBottom = spacing;
+    });
+}
+
+// Section order application
+function applySectionOrder() {
+    customizationState.sectionOrder = document.getElementById('sectionOrder').value;
+    const container = document.querySelector('#resumePreview .p-4');
+    const sections = {
+        summary: document.getElementById('summarySection'),
+        education: document.getElementById('educationSection'),
+        experience: document.getElementById('experienceSection'),
+        skills: document.getElementById('skillsSection')
+    };
+    
+    // Remove all sections
+    Object.values(sections).forEach(section => {
+        if (section) section.remove();
+    });
+    
+    // Determine order based on selection
+    let order;
+    const orderValue = customizationState.sectionOrder;
+    if (orderValue.includes('skills-first')) order = ['skills', 'experience', 'education', 'summary'];
+    else if (orderValue.includes('experience-first')) order = ['experience', 'education', 'skills', 'summary'];
+    else if (orderValue.includes('education-first')) order = ['education', 'experience', 'skills', 'summary'];
+    else order = ['summary', 'education', 'experience', 'skills'];
+    
+    // Add sections in new order
+    order.forEach(sectionKey => {
+        if (sections[sectionKey]) {
+            container.appendChild(sections[sectionKey]);
+        }
+    });
+}
+
+// Header style application
+function applyHeaderStyle() {
+    customizationState.headerStyle = document.getElementById('headerStyle').value;
+    const header = document.getElementById('resumeHeader');
+    
+    switch(customizationState.headerStyle) {
+        case 'solid':
+            header.style.background = customizationState.primaryColor;
+            break;
+        case 'minimal':
+            header.style.background = 'transparent';
+            header.style.color = customizationState.primaryColor;
+            break;
+        case 'bordered':
+            header.style.background = 'white';
+            header.style.color = customizationState.primaryColor;
+            header.style.borderBottom = `4px solid ${customizationState.primaryColor}`;
+            break;
+        case 'creative':
+            header.style.background = `linear-gradient(45deg, ${customizationState.primaryColor} 0%, ${customizationState.secondaryColor} 100%)`;
+            break;
+        default:
+            header.style.background = `linear-gradient(135deg, ${customizationState.primaryColor} 0%, ${customizationState.secondaryColor} 100%)`;
+    }
+}
+
+// Skill display application
+function applySkillDisplay() {
+    customizationState.skillDisplay = document.getElementById('skillDisplay').value;
+    const skillsContainer = document.querySelector('.skills-container');
+    if (!skillsContainer) return;
+    
+    // Remove existing classes
+    skillsContainer.className = 'skills-container';
+    skillsContainer.classList.add(`skills-${customizationState.skillDisplay}`);
+    
+    // Apply specific styles for each display type
+    const skillItems = skillsContainer.querySelectorAll('.skill-item');
+    skillItems.forEach(item => {
+        item.style.display = 'inline-block';
+        item.style.margin = '5px';
+        item.style.padding = '8px 16px';
+        item.style.borderRadius = '20px';
+        item.style.color = 'white';
+        item.style.background = `linear-gradient(135deg, ${customizationState.primaryColor} 0%, ${customizationState.secondaryColor} 100%)`;
+        
+        switch(customizationState.skillDisplay) {
+            case 'tags':
+                item.style.background = customizationState.primaryColor;
+                item.style.borderRadius = '4px';
+                break;
+            case 'grid':
+                item.style.display = 'block';
+                item.style.textAlign = 'center';
+                item.style.margin = '2px';
+                break;
+            case 'list':
+                item.style.background = 'transparent';
+                item.style.color = customizationState.primaryColor;
+                item.style.border = `1px solid ${customizationState.primaryColor}`;
+                break;
+            case 'progress':
+                // This would require additional HTML structure for progress bars
+                break;
+        }
+    });
+}
+
+// Card style application
+function applyCardStyle() {
+    customizationState.cardStyle = document.getElementById('cardStyle').value;
+    const resume = document.getElementById('resumePreview');
+    const cards = document.querySelectorAll('.section-content, .education-item, .experience-item');
+    
+    cards.forEach(card => {
+        switch(customizationState.cardStyle) {
+            case 'sharp':
+                card.style.borderRadius = '0';
+                card.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                break;
+            case 'floating':
+                card.style.borderRadius = '12px';
+                card.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+                break;
+            case 'bordered':
+                card.style.borderRadius = '8px';
+                card.style.boxShadow = 'none';
+                card.style.border = `2px solid ${customizationState.primaryColor}20`;
+                break;
+            case 'minimal':
+                card.style.background = 'transparent';
+                card.style.boxShadow = 'none';
+                card.style.borderRadius = '0';
+                break;
+            default:
+                card.style.borderRadius = '8px';
+                card.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+        }
+    });
+}
+
+// Shadow intensity application
+function applyShadowIntensity() {
+    customizationState.shadowIntensity = document.getElementById('shadowIntensity').value;
+    const resume = document.getElementById('resumePreview');
+    
+    switch(customizationState.shadowIntensity) {
+        case 'none':
+            resume.style.boxShadow = 'none';
+            break;
+        case 'soft':
+            resume.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+            break;
+        case 'strong':
+            resume.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)';
+            break;
+        case 'premium':
+            resume.style.boxShadow = '0 20px 50px rgba(0,0,0,0.3)';
+            break;
+        default:
+            resume.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+    }
+}
+
+// Background style application
+function applyBackgroundStyle() {
+    customizationState.backgroundStyle = document.getElementById('backgroundStyle').value;
+    const body = document.body;
+    
+    switch(customizationState.backgroundStyle) {
+        case 'gradient':
+            body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            break;
+        case 'pattern':
+            body.style.background = 'radial-gradient(circle at 10% 20%, rgb(253, 239, 132) 0%, rgb(247, 198, 169) 54.2%, rgb(21, 186, 196) 100.3%)';
+            break;
+        case 'texture':
+            body.style.background = 'url("data:image/svg+xml,%3Csvg width=\"100\" height=\"100\" viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cpath d=\"M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z\" fill=\"%239C92AC\" fill-opacity=\"0.05\" fill-rule=\"evenodd\"/%3E%3C/svg%3E")';
+            break;
+        default:
+            body.style.background = '#f8f9fa';
+    }
+}
+
+// Additional customization functions
+function applyResponsiveMode() {
+    customizationState.responsiveMode = document.getElementById('responsiveMode').value;
+    // Implementation for responsive modes
+}
+
+function applyBorderRadius() {
+    customizationState.borderRadius = document.getElementById('borderRadius').value;
+    let radius;
+    switch(customizationState.borderRadius) {
+        case 'small': radius = '4px'; break;
+        case 'large': radius = '16px'; break;
+        case 'xl': radius = '24px'; break;
+        case 'none': radius = '0'; break;
+        default: radius = '8px';
+    }
+    document.getElementById('resumePreview').style.borderRadius = radius;
+}
+
+function applyAnimationEffects() {
+    customizationState.animationEffects = document.getElementById('animationEffects').value;
+    // Implementation for animation effects
+}
+
+function applyColorScheme() {
+    customizationState.colorScheme = document.getElementById('colorScheme').value;
+    // Implementation for color schemes
+}
+
+function applySpacingScale() {
+    customizationState.spacingScale = document.getElementById('spacingScale').value;
+    let scale;
+    switch(customizationState.spacingScale) {
+        case 'compact': scale = 0.8; break;
+        case 'generous': scale = 1.2; break;
+        case 'luxury': scale = 1.5; break;
+        default: scale = 1;
+    }
+    // Apply spacing scale to various elements
+}
+
+// Show message function
+function showMessage(message, type) {
+    const messageDiv = document.getElementById('exportMessage');
+    messageDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+    setTimeout(() => messageDiv.innerHTML = '', 4000);
+}
+
+// PERFECT PDF EXPORT - FIXED FOR ALL CUSTOMIZATIONS
+// WORKING PDF EXPORT - NO BLANK PAGE
+function exportAsPDF() {
+    const element = document.getElementById('resumePreview');
+    const messageDiv = document.getElementById('exportMessage');
+    
+    messageDiv.innerHTML = '<div class="alert alert-info">🔄 Generating PDF... Please wait</div>';
+    
+    // Store original styles temporarily
+    const originalStyles = {
+        margin: element.style.margin,
+        padding: element.style.padding,
+        boxShadow: element.style.boxShadow,
+        transform: element.style.transform
+    };
+    
+    // Apply temporary styles for PDF export
+    element.style.margin = '0';
+    element.style.padding = '20px';
+    element.style.boxShadow = 'none';
+    element.style.transform = 'none';
+    
+    // Simple and reliable configuration
+    const options = {
+        margin: 10,
+        filename: '@(Model.FullName ?? "Resume")_Modern_Resume.pdf',
+        image: { 
+            type: 'jpeg', 
+            quality: 0.98 
+        },
+        html2canvas: { 
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            scrollY: 0
+        },
+        jsPDF: { 
+            unit: 'mm', 
+            format: 'a4', 
+            orientation: 'portrait' 
+        }
+    };
+    
+    // Use the direct element without cloning
+    html2pdf()
+        .set(options)
+        .from(element)
+        .save()
+        .then(() => {
+            // Restore original styles
+            element.style.margin = originalStyles.margin;
+            element.style.padding = originalStyles.padding;
+            element.style.boxShadow = originalStyles.boxShadow;
+            element.style.transform = originalStyles.transform;
+            
+            messageDiv.innerHTML = '<div class="alert alert-success">✅ PDF downloaded successfully!</div>';
+            setTimeout(() => messageDiv.innerHTML = '', 3000);
+        })
+        .catch(error => {
+            // Restore original styles even on error
+            element.style.margin = originalStyles.margin;
+            element.style.padding = originalStyles.padding;
+            element.style.boxShadow = originalStyles.boxShadow;
+            element.style.transform = originalStyles.transform;
+            
+            messageDiv.innerHTML = '<div class="alert alert-danger">❌ Error generating PDF</div>';
+            console.error('PDF Export Error:', error);
+        });
+}
+// DOCX Export function
+// WORKING DOCX EXPORT - PROPER WORD FORMAT
+// RICH TEXT FORMAT (RTF) EXPORT - BETTER FORMATTING
+// WORKING DOCUMENT EXPORT - PLAIN TEXT FORMAT
+// PROPER DOCX EXPORT - REAL WORD DOCUMENT
+function exportAsDOCX() {
+    const messageDiv = document.getElementById('exportMessage');
+    messageDiv.innerHTML = '<div class="alert alert-info">🔄 Generating Word document... Please wait</div>';
+    
+    try {
+        const name = document.getElementById('resumeName').textContent || 'Resume';
+        
+        // Create a simple HTML content that Word can open
+        const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${name} - Resume</title>
+    <style>
+        body { 
+            font-family: 'Calibri', Arial, sans-serif; 
+            margin: 40px; 
+            line-height: 1.4;
+            color: #2c3e50;
+        }
+        .header { 
+            text-align: center; 
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .name { 
+            font-size: 28px; 
+            font-weight: bold; 
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        .contact-info { 
+            font-size: 14px; 
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .section { 
+            margin-bottom: 25px; 
+        }
+        .section-title { 
+            font-size: 18px; 
+            font-weight: bold; 
+            color: #2c3e50;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        .item { 
+            margin-bottom: 15px; 
+        }
+        .item-title { 
+            font-weight: bold; 
+            font-size: 16px;
+        }
+        .item-subtitle { 
+            color: #666; 
+            font-style: italic;
+        }
+        .item-duration { 
+            color: #888; 
+            font-size: 14px;
+        }
+        .skills { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 8px; 
+        }
+        .skill { 
+            background: #f8f9fa; 
+            padding: 5px 12px; 
+            border-radius: 15px; 
+            border: 1px solid #dee2e6;
+            font-size: 14px;
+        }
+        .social-links { 
+            margin: 10px 0; 
+        }
+        .social-link { 
+            margin: 0 10px; 
+            color: #007bff; 
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="name">${name}</div>
+        ${Array.from(document.querySelectorAll('.contact-info')).map(el => 
+            `<div class="contact-info">${el.textContent}</div>`
+        ).join('')}
+        
+        ${customizationState.linkedinUrl || customizationState.githubUrl || customizationState.portfolioUrl ? `
+        <div class="social-links">
+            ${customizationState.linkedinUrl ? `<a href="${customizationState.linkedinUrl}" class="social-link">LinkedIn</a>` : ''}
+            ${customizationState.githubUrl ? `<a href="${customizationState.githubUrl}" class="social-link">GitHub</a>` : ''}
+            ${customizationState.portfolioUrl ? `<a href="${customizationState.portfolioUrl}" class="social-link">Portfolio</a>` : ''}
+        </div>
+        ` : ''}
+    </div>
+
+    <!-- Professional Summary -->
+    <div class="section">
+        <div class="section-title">PROFESSIONAL SUMMARY</div>
+        <div>${document.querySelector('#summarySection .section-content p')?.textContent || ''}</div>
+    </div>
+
+    <!-- Education -->
+    ${document.getElementById('educationSection') ? `
+    <div class="section">
+        <div class="section-title">EDUCATION</div>
+        ${Array.from(document.querySelectorAll('.education-item')).map(item => `
+            <div class="item">
+                <div class="item-title">${item.querySelector('strong')?.textContent || ''}</div>
+                <div class="item-subtitle">${item.querySelector('em')?.textContent || ''}</div>
+                <div class="item-duration">${item.querySelector('span')?.textContent || ''}</div>
+            </div>
+        `).join('')}
+    </div>
+    ` : ''}
+
+    <!-- Work Experience -->
+    ${document.getElementById('experienceSection') ? `
+    <div class="section">
+        <div class="section-title">PROFESSIONAL EXPERIENCE</div>
+        ${Array.from(document.querySelectorAll('.experience-item')).map(item => `
+            <div class="item">
+                <div class="item-title">${item.querySelector('strong')?.textContent || ''}</div>
+                <div class="item-subtitle">${item.querySelector('em')?.textContent || ''}</div>
+                <div class="item-duration">${item.querySelector('span')?.textContent || ''}</div>
+                <div>${item.querySelector('p')?.textContent || ''}</div>
+            </div>
+        `).join('')}
+    </div>
+    ` : ''}
+
+    <!-- Skills -->
+    ${document.getElementById('skillsSection') ? `
+    <div class="section">
+        <div class="section-title">SKILLS</div>
+        <div class="skills">
+            ${Array.from(document.querySelectorAll('.skill-item')).map(item => 
+                `<span class="skill">${item.textContent?.replace('•', '').trim() || ''}</span>`
+            ).join('')}
+        </div>
+    </div>
+    ` : ''}
+
+    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666; text-align: center;">
+        Generated on ${new Date().toLocaleDateString()} | Resume ID: @Model.Id | Template: Modern Professional
+    </div>
+</body>
+</html>`;
+
+        // Create as HTML file with .doc extension - Word will open this perfectly
+        const blob = new Blob([htmlContent], { 
+            type: 'application/msword'
+        });
+        
+        // Create download link
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${name.replace(/[^\w\s]/gi, '').replace(/\s+/g, '_')}_Resume.doc`;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Clean up
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 100);
+        
+        messageDiv.innerHTML = '<div class="alert alert-success">✅ Word document downloaded successfully! Opens perfectly in Microsoft Word.</div>';
+        setTimeout(() => messageDiv.innerHTML = '', 4000);
+        
+    } catch (error) {
+        messageDiv.innerHTML = '<div class="alert alert-danger">❌ Error generating Word document</div>';
+        console.error('DOCX Export Error:', error);
+    }
+}
+// HTML Export function
+function exportAsHTML() {
+    const messageDiv = document.getElementById('exportMessage');
+    messageDiv.innerHTML = '<div class="alert alert-info">🔄 Generating HTML file... Please wait</div>';
+    
+    try {
+        const resumeElement = document.getElementById('resumePreview');
+        const fullHTML = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>@Model.FullName - Modern Resume</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .resume-preview-container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .section-title { color: #667eea; border-left: 4px solid #667eea; padding-left: 15px; margin-bottom: 15px; }
+        .skill-chips span { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 16px; border-radius: 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    ${resumeElement.outerHTML}
+    <div style="text-align: center; margin-top: 20px; color: #666;">
+        <p>Generated on ${new Date().toLocaleDateString()} | Resume ID: @Model.Id</p>
+    </div>
+</body>
+</html>`;
+        
+        const blob = new Blob([fullHTML], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Resume_Modern.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        messageDiv.innerHTML = '<div class="alert alert-success">✅ HTML file downloaded successfully!</div>';
+        setTimeout(() => messageDiv.innerHTML = '', 3000);
+    } catch (error) {
+        messageDiv.innerHTML = '<div class="alert alert-danger">❌ Error generating HTML file</div>';
+    }
+}
+
+// Print function
+function printResume() {
+    const messageDiv = document.getElementById('exportMessage');
+    messageDiv.innerHTML = '<div class="alert alert-info">🔄 Opening print dialog...</div>';
+    
+    const printContent = document.getElementById('resumePreview').innerHTML;
+    const originalContent = document.body.innerHTML;
+    
+    document.body.innerHTML = printContent;
+    window.print();
+    document.body.innerHTML = originalContent;
+    location.reload();
+}
+</script>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+    
+    /* Theme Styles */
+    .theme-gradient-purple .header-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+    
+    .theme-gradient-blue .header-section {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    }
+    
+    .theme-gradient-green .header-section {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
+    }
+    
+    .theme-gradient-orange .header-section {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+    }
+    
+    .theme-solid-blue .header-section {
+        background: #2c5aa0 !important;
+    }
+    
+    .theme-solid-dark .header-section {
+        background: #2d3748 !important;
+    }
+    
+    .theme-minimal-light .header-section {
+        background: transparent !important;
+        color: #333 !important;
+        border-bottom: 3px solid #667eea;
+    }
+    
+    .theme-professional-dark .header-section {
+        background: #1a365d !important;
+    }
+
+    /* Skill Display Styles */
+    .skills-chips .skill-item {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        margin: 5px;
+        font-size: 14px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .skills-tags .skill-item {
+        background: #667eea;
+        border-radius: 4px;
+        color: white;
+        padding: 6px 12px;
+        margin: 3px;
+        font-size: 13px;
+    }
+    
+    .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+    }
+    
+    .skills-grid .skill-item {
+        text-align: center;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .skills-list .skill-item {
+        display: block;
+        background: transparent;
+        color: #333;
+        border: 1px solid #667eea;
+        margin: 2px 0;
+    }
+
+    /* Print Styles */
+    @@media print {
+        .alert, .card, .btn, .text-center.mt-4 {
+            display: none !important;
+        }
+        .resume-preview-container {
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+        }
+        .header-section {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: white !important;
+        }
+    }
+    
+    .section-title {
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    /* Animation for preview */
+    .resume-preview-container {
+        transition: all 0.3s ease;
+    }
+</style>

@@ -1,0 +1,1006 @@
+@model AIResumeBuilder.Models.Resume
+
+@{
+    ViewData["Title"] = "Classic Resume Preview";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="color: #2c3e50; border-bottom: 2px solid #2c3e50; padding-bottom: 10px;">Classic Resume Preview</h2>
+        <div>
+            <a href="@Url.Action("Create", "ClassicResume")" class="btn btn-outline-dark me-2">✏️ Edit Resume</a>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">🏠 Home</a>
+        </div>
+    </div>
+
+    <!-- Enhanced Customization Panel -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>🎨 Customize Your Resume</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Theme Selection -->
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Theme</label>
+                    <select class="form-select" id="themeSelect">
+                        <option value="classic">Classic</option>
+                        <option value="modern">Modern</option>
+                        <option value="professional">Professional</option>
+                        <option value="creative">Creative</option>
+                        <option value="minimal">Minimal</option>
+                        <option value="executive">Executive</option>
+                    </select>
+                </div>
+                
+                <!-- Color Scheme -->
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Primary Color</label>
+                    <input type="color" class="form-control form-control-color" id="primaryColor" value="#2c3e50" title="Choose primary color">
+                </div>
+                
+                <!-- Font Family -->
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Font Family</label>
+                    <select class="form-select" id="fontFamily">
+                        <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="'Calibri', sans-serif">Calibri</option>
+                        <option value="'Garamond', serif">Garamond</option>
+                    </select>
+                </div>
+                
+                <!-- Font Size -->
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Font Size</label>
+                    <select class="form-select" id="fontSize">
+                        <option value="small">Small</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- Layout Options -->
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Layout</label>
+                    <select class="form-select" id="layoutSelect">
+                        <option value="single-column">Single Column</option>
+                        <option value="two-column">Two Columns</option>
+                        <option value="centered">Centered</option>
+                    </select>
+                </div>
+                
+                <!-- Content Alignment -->
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Content Alignment</label>
+                    <select class="form-select" id="contentAlignment">
+                        <option value="left">Left Aligned</option>
+                        <option value="center" selected>Centered</option>
+                        <option value="justify">Justified</option>
+                    </select>
+                </div>
+                
+                <!-- Section Order -->
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Section Order</label>
+                    <select class="form-select" id="sectionOrder">
+                        <option value="default">Default Order</option>
+                        <option value="skills-first">Skills First</option>
+                        <option value="experience-first">Experience First</option>
+                        <option value="education-first">Education First</option>
+                    </select>
+                </div>
+                
+                <!-- Spacing -->
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Line Spacing</label>
+                    <select class="form-select" id="lineSpacing">
+                        <option value="compact">Compact</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="relaxed">Relaxed</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Additional Customizations -->
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Header Style</label>
+                    <select class="form-select" id="headerStyle">
+                        <option value="simple">Simple</option>
+                        <option value="bordered">Bordered</option>
+                        <option value="background">With Background</option>
+                        <option value="minimal">Minimal</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Section Style</label>
+                    <select class="form-select" id="sectionStyle">
+                        <option value="simple">Simple</option>
+                        <option value="bordered-left" selected>Bordered Left</option>
+                        <option value="bordered-full">Full Border</option>
+                        <option value="background">Background</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Skill Display</label>
+                    <select class="form-select" id="skillDisplay">
+                        <option value="list">List Style</option>
+                        <option value="tags">Tag Style</option>
+                        <option value="grid">Grid Style</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12">
+                    <button onclick="resetCustomizations()" class="btn btn-outline-secondary btn-sm me-2">🔄 Reset</button>
+                    <button onclick="saveCustomizations()" class="btn btn-primary btn-sm">💾 Save Preferences</button>
+                    <button onclick="toggleAdvancedOptions()" class="btn btn-outline-info btn-sm ms-2">⚙️ Advanced</button>
+                    <small class="text-muted ms-2">Changes apply instantly to preview</small>
+                </div>
+            </div>
+
+            <!-- Advanced Options -->
+            <div id="advancedOptions" class="mt-3" style="display: none;">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Margin Size</label>
+                        <select class="form-select" id="marginSize">
+                            <option value="small">Small</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="large">Large</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Border Radius</label>
+                        <select class="form-select" id="borderRadius">
+                            <option value="none">None</option>
+                            <option value="small">Small</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="large">Large</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Shadow Intensity</label>
+                        <select class="form-select" id="shadowIntensity">
+                            <option value="none">None</option>
+                            <option value="light">Light</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="heavy">Heavy</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>📤 Export Your Resume</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <button onclick="exportAsPDF()" class="btn btn-danger btn-block w-100">
+                        📄 Export as PDF
+                    </button>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <button onclick="exportAsDOCX()" class="btn btn-primary btn-block w-100">
+                        📝 Export as DOCX
+                    </button>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <button onclick="exportAsHTML()" class="btn btn-success btn-block w-100">
+                        🌐 Export as HTML
+                    </button>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <button onclick="printResume()" class="btn btn-info btn-block w-100">
+                        🖨️ Print Resume
+                    </button>
+                </div>
+            </div>
+            <div id="exportMessage" class="mt-2"></div>
+            <small class="text-muted">All exports will include your customizations!</small>
+        </div>
+    </div>
+
+    <!-- Resume Preview Container -->
+    <div id="resumePreview" class="resume-preview-container border p-4" style="background: white; border-color: #bdc3c7 !important;">
+        <!-- Header Section -->
+        <div id="resumeHeader" class="text-center mb-4">
+            <h1 id="resumeName" style="color: #2c3e50; margin-bottom: 5px; font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">@Model.FullName</h1>
+            <div id="nameDivider" style="border-bottom: 2px solid #2c3e50; width: 100px; margin: 10px auto;"></div>
+            <p class="mb-1 contact-info" style="color: #7f8c8d; font-size: 14px;">@Model.TargetJobTitle</p>
+            <p class="mb-1 contact-info" style="color: #7f8c8d; font-size: 14px;">@Model.Email • @Model.Phone</p>
+        </div>
+
+        <!-- Professional Summary -->
+        <div class="resume-section mb-4" id="summarySection">
+            <h4 class="section-title" style="color: #2c3e50; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Professional Summary</h4>
+            <div class="section-content" style="border-left: 3px solid #2c3e50; padding-left: 15px;">
+                <p style="line-height: 1.6; white-space: pre-line; font-size: 14px; text-align: left;">@Model.Summary</p>
+            </div>
+        </div>
+
+        <!-- Education -->
+        @if (Model.Educations != null && Model.Educations.Any(e => !string.IsNullOrEmpty(e.Institution)))
+        {
+            <div class="resume-section mb-4" id="educationSection">
+                <h4 class="section-title" style="color: #2c3e50; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Education</h4>
+                @foreach (var education in Model.Educations.Where(e => !string.IsNullOrEmpty(e.Institution)))
+                {
+                    <div class="mb-3 education-item" style="margin-left: 0; text-align: left;">
+                        <strong style="color: #2c3e50; font-size: 14px;">@education.Degree in @education.Field</strong><br>
+                        <em style="color: #7f8c8d; font-size: 13px;">@education.Institution</em><br>
+                        <span style="color: #666; font-size: 13px;">Graduated: @education.GraduationYear</span>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Work Experience -->
+        @if (Model.Experiences != null && Model.Experiences.Any(e => !string.IsNullOrEmpty(e.Company)))
+        {
+            <div class="resume-section mb-4" id="experienceSection">
+                <h4 class="section-title" style="color: #2c3e50; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Professional Experience</h4>
+                @foreach (var experience in Model.Experiences.Where(e => !string.IsNullOrEmpty(e.Company)))
+                {
+                    <div class="mb-3 experience-item" style="margin-left: 0; text-align: left;">
+                        <strong style="color: #2c3e50; font-size: 14px;">@experience.Position</strong><br>
+                        <em style="color: #7f8c8d; font-size: 13px;">@experience.Company</em><br>
+                        <span style="color: #666; font-size: 13px;">
+                            @experience.StartDate
+                            @if (experience.EndDate.HasValue && experience.EndDate > 0)
+                            {
+                                <text> - @experience.EndDate.Value</text>
+                            }
+                            else if (experience.IsCurrent)
+                            {
+                                <text> - Present</text>
+                            }
+                        </span>
+                        <p style="line-height: 1.6; margin-top: 5px; font-size: 13px; white-space: pre-line; text-align: left;">@experience.Description</p>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Skills -->
+        @if (Model.Skills != null && Model.Skills.Any(s => !string.IsNullOrEmpty(s.Name)))
+        {
+            <div class="resume-section mb-4" id="skillsSection">
+                <h4 class="section-title" style="color: #2c3e50; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Skills</h4>
+                <div class="skills-container" style="margin-left: 0; text-align: left;">
+                    @foreach (var skill in Model.Skills.Where(s => !string.IsNullOrEmpty(s.Name)))
+                    {
+                        <div class="skill-item" style="display: inline-block; margin-right: 15px; margin-bottom: 5px;">
+                            • @skill.Name <small style="color: #666;">(@skill.Level)</small>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="text-center mt-4">
+        <p class="text-muted">Resume ID: @Model.Id | Created: @Model.CreatedDate.ToString("MMMM dd, yyyy") | Template: Classic</p>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<script>
+// Enhanced Customization state
+let customizationState = {
+    theme: 'classic',
+    primaryColor: '#2c3e50',
+    fontFamily: "'Times New Roman', Times, serif",
+    fontSize: 'medium',
+    layout: 'single-column',
+    contentAlignment: 'center',
+    sectionOrder: 'default',
+    lineSpacing: 'normal',
+    headerStyle: 'simple',
+    sectionStyle: 'bordered-left',
+    skillDisplay: 'list',
+    marginSize: 'medium',
+    borderRadius: 'medium',
+    shadowIntensity: 'medium'
+};
+
+// Initialize customization
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded - initializing customizations');
+    loadSavedCustomizations();
+    setupCustomizationListeners();
+    applyAllCustomizations();
+});
+
+// Setup event listeners for customization controls
+function setupCustomizationListeners() {
+    console.log('Setting up event listeners');
+    
+    const elements = [
+        { id: 'themeSelect', event: 'change', func: applyTheme },
+        { id: 'primaryColor', event: 'input', func: applyPrimaryColor },
+        { id: 'fontFamily', event: 'change', func: applyFontFamily },
+        { id: 'fontSize', event: 'change', func: applyFontSize },
+        { id: 'layoutSelect', event: 'change', func: applyLayout },
+        { id: 'contentAlignment', event: 'change', func: applyContentAlignment },
+        { id: 'sectionOrder', event: 'change', func: applySectionOrder },
+        { id: 'lineSpacing', event: 'change', func: applyLineSpacing },
+        { id: 'headerStyle', event: 'change', func: applyHeaderStyle },
+        { id: 'sectionStyle', event: 'change', func: applySectionStyle },
+        { id: 'skillDisplay', event: 'change', func: applySkillDisplay },
+        { id: 'marginSize', event: 'change', func: applyMarginSize },
+        { id: 'borderRadius', event: 'change', func: applyBorderRadius },
+        { id: 'shadowIntensity', event: 'change', func: applyShadowIntensity }
+    ];
+
+    elements.forEach(item => {
+        const element = document.getElementById(item.id);
+        if (element) {
+            element.addEventListener(item.event, item.func);
+        }
+    });
+}
+
+// Toggle advanced options
+function toggleAdvancedOptions() {
+    const advanced = document.getElementById('advancedOptions');
+    advanced.style.display = advanced.style.display === 'none' ? 'block' : 'none';
+}
+
+// Load saved customizations from localStorage
+function loadSavedCustomizations() {
+    const saved = localStorage.getItem(`resumeCustomization_@Model.Id`);
+    if (saved) {
+        try {
+            customizationState = { ...customizationState, ...JSON.parse(saved) };
+        } catch (e) {
+            console.error('Error loading saved customizations:', e);
+        }
+    }
+    updateControlValues();
+}
+
+// Save customizations to localStorage
+function saveCustomizations() {
+    localStorage.setItem(`resumeCustomization_@Model.Id`, JSON.stringify(customizationState));
+    showMessage('Customizations saved!', 'success');
+}
+
+// Reset to default customizations
+function resetCustomizations() {
+    customizationState = {
+        theme: 'classic',
+        primaryColor: '#2c3e50',
+        fontFamily: "'Times New Roman', Times, serif",
+        fontSize: 'medium',
+        layout: 'single-column',
+        contentAlignment: 'center',
+        sectionOrder: 'default',
+        lineSpacing: 'normal',
+        headerStyle: 'simple',
+        sectionStyle: 'bordered-left',
+        skillDisplay: 'list',
+        marginSize: 'medium',
+        borderRadius: 'medium',
+        shadowIntensity: 'medium'
+    };
+    applyAllCustomizations();
+    showMessage('Customizations reset to default!', 'info');
+}
+
+// Apply all customizations
+function applyAllCustomizations() {
+    updateControlValues();
+    applyTheme();
+    applyPrimaryColor();
+    applyFontFamily();
+    applyFontSize();
+    applyLayout();
+    applyContentAlignment();
+    applySectionOrder();
+    applyLineSpacing();
+    applyHeaderStyle();
+    applySectionStyle();
+    applySkillDisplay();
+    applyMarginSize();
+    applyBorderRadius();
+    applyShadowIntensity();
+}
+
+// Update control values from state
+function updateControlValues() {
+    const controls = {
+        'themeSelect': customizationState.theme,
+        'primaryColor': customizationState.primaryColor,
+        'fontFamily': customizationState.fontFamily,
+        'fontSize': customizationState.fontSize,
+        'layoutSelect': customizationState.layout,
+        'contentAlignment': customizationState.contentAlignment,
+        'sectionOrder': customizationState.sectionOrder,
+        'lineSpacing': customizationState.lineSpacing,
+        'headerStyle': customizationState.headerStyle,
+        'sectionStyle': customizationState.sectionStyle,
+        'skillDisplay': customizationState.skillDisplay,
+        'marginSize': customizationState.marginSize,
+        'borderRadius': customizationState.borderRadius,
+        'shadowIntensity': customizationState.shadowIntensity
+    };
+
+    for (const [id, value] of Object.entries(controls)) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.value = value;
+        }
+    }
+}
+
+// Theme application
+function applyTheme() {
+    customizationState.theme = document.getElementById('themeSelect').value;
+    const resume = document.getElementById('resumePreview');
+    
+    resume.className = 'resume-preview-container border p-4';
+    resume.classList.add(`theme-${customizationState.theme}`);
+    
+    switch(customizationState.theme) {
+        case 'modern':
+            customizationState.primaryColor = '#3498db';
+            break;
+        case 'professional':
+            customizationState.primaryColor = '#2c3e50';
+            break;
+        case 'creative':
+            customizationState.primaryColor = '#e74c3c';
+            break;
+        case 'minimal':
+            customizationState.primaryColor = '#95a5a6';
+            break;
+        case 'executive':
+            customizationState.primaryColor = '#34495e';
+            break;
+        default:
+            customizationState.primaryColor = '#2c3e50';
+    }
+    
+    updateControlValues();
+    applyPrimaryColor();
+}
+
+// Content Alignment application
+function applyContentAlignment() {
+    customizationState.contentAlignment = document.getElementById('contentAlignment').value;
+    const resume = document.getElementById('resumePreview');
+    resume.style.textAlign = customizationState.contentAlignment;
+    
+    const contentElements = document.querySelectorAll('.section-content, .education-item, .experience-item, .skills-container');
+    contentElements.forEach(el => {
+        el.style.textAlign = customizationState.contentAlignment;
+        if (customizationState.contentAlignment === 'center') {
+            el.style.marginLeft = 'auto';
+            el.style.marginRight = 'auto';
+        } else {
+            el.style.marginLeft = '0';
+            el.style.marginRight = '0';
+        }
+    });
+}
+
+// Primary color application
+function applyPrimaryColor() {
+    customizationState.primaryColor = document.getElementById('primaryColor').value;
+    const color = customizationState.primaryColor;
+    
+    document.querySelectorAll('.section-title, #resumeName, .resume-preview-container h4, .resume-preview-container strong').forEach(el => {
+        el.style.color = color;
+    });
+    
+    document.getElementById('nameDivider').style.borderBottomColor = color;
+    document.querySelectorAll('.section-content[style*="border-left"]').forEach(el => {
+        el.style.borderLeftColor = color;
+    });
+}
+
+// Font family application
+function applyFontFamily() {
+    customizationState.fontFamily = document.getElementById('fontFamily').value;
+    document.getElementById('resumePreview').style.fontFamily = customizationState.fontFamily;
+}
+
+// Font size application
+function applyFontSize() {
+    customizationState.fontSize = document.getElementById('fontSize').value;
+    
+    let baseSize;
+    switch(customizationState.fontSize) {
+        case 'small': baseSize = '12px'; break;
+        case 'large': baseSize = '16px'; break;
+        default: baseSize = '14px';
+    }
+    document.getElementById('resumePreview').style.fontSize = baseSize;
+}
+
+// Layout application
+function applyLayout() {
+    customizationState.layout = document.getElementById('layoutSelect').value;
+    const resume = document.getElementById('resumePreview');
+    
+    resume.style.columnCount = '1';
+    resume.style.maxWidth = 'none';
+    resume.style.margin = '0';
+    
+    if (customizationState.layout === 'two-column') {
+        resume.style.columnCount = '2';
+        resume.style.columnGap = '40px';
+    } else if (customizationState.layout === 'centered') {
+        resume.style.maxWidth = '800px';
+        resume.style.margin = '0 auto';
+    }
+    
+    applyContentAlignment();
+}
+
+// Header style application
+function applyHeaderStyle() {
+    customizationState.headerStyle = document.getElementById('headerStyle').value;
+    const header = document.getElementById('resumeHeader');
+    
+    header.style.background = 'none';
+    header.style.padding = '0';
+    header.style.border = 'none';
+    header.style.borderRadius = '0';
+    
+    switch(customizationState.headerStyle) {
+        case 'bordered':
+            header.style.padding = '20px';
+            header.style.border = '2px solid ' + customizationState.primaryColor;
+            header.style.borderRadius = '10px';
+            break;
+        case 'background':
+            header.style.background = customizationState.primaryColor + '15';
+            header.style.padding = '20px';
+            header.style.borderRadius = '10px';
+            break;
+        case 'minimal':
+            document.getElementById('nameDivider').style.display = 'none';
+            break;
+        default:
+            document.getElementById('nameDivider').style.display = 'block';
+    }
+}
+
+// Section style application
+function applySectionStyle() {
+    customizationState.sectionStyle = document.getElementById('sectionStyle').value;
+    const sections = document.querySelectorAll('.resume-section');
+    
+    sections.forEach(section => {
+        section.style.background = 'none';
+        section.style.padding = '0';
+        section.style.border = 'none';
+        section.style.borderRadius = '0';
+        
+        const content = section.querySelector('.section-content');
+        if (content) {
+            content.style.borderLeft = 'none';
+            content.style.paddingLeft = '0';
+        }
+        
+        switch(customizationState.sectionStyle) {
+            case 'bordered-left':
+                if (content) {
+                    content.style.borderLeft = '3px solid ' + customizationState.primaryColor;
+                    content.style.paddingLeft = '15px';
+                }
+                break;
+            case 'bordered-full':
+                section.style.padding = '15px';
+                section.style.border = '1px solid #ddd';
+                section.style.borderRadius = '5px';
+                break;
+            case 'background':
+                section.style.background = customizationState.primaryColor + '10';
+                section.style.padding = '15px';
+                section.style.borderRadius = '5px';
+                break;
+        }
+    });
+}
+
+// Skill display application
+function applySkillDisplay() {
+    customizationState.skillDisplay = document.getElementById('skillDisplay').value;
+    const skillsContainer = document.querySelector('.skills-container');
+    if (!skillsContainer) return;
+    
+    skillsContainer.classList.remove('skills-list', 'skills-tags', 'skills-grid');
+    skillsContainer.classList.add('skills-' + customizationState.skillDisplay);
+}
+
+// Section Order application
+function applySectionOrder() {
+    customizationState.sectionOrder = document.getElementById('sectionOrder').value;
+    const container = document.getElementById('resumePreview');
+    const sections = {
+        summary: document.getElementById('summarySection'),
+        education: document.getElementById('educationSection'),
+        experience: document.getElementById('experienceSection'),
+        skills: document.getElementById('skillsSection')
+    };
+    
+    Object.values(sections).forEach(section => {
+        if (section) section.remove();
+    });
+    
+    let order;
+    switch(customizationState.sectionOrder) {
+        case 'skills-first':
+            order = ['skills', 'experience', 'education', 'summary'];
+            break;
+        case 'experience-first':
+            order = ['experience', 'education', 'skills', 'summary'];
+            break;
+        case 'education-first':
+            order = ['education', 'experience', 'skills', 'summary'];
+            break;
+        default:
+            order = ['summary', 'education', 'experience', 'skills'];
+    }
+    
+    order.forEach(sectionKey => {
+        if (sections[sectionKey]) {
+            container.appendChild(sections[sectionKey]);
+        }
+    });
+}
+
+// Line Spacing application
+function applyLineSpacing() {
+    customizationState.lineSpacing = document.getElementById('lineSpacing').value;
+    
+    let spacing;
+    switch(customizationState.lineSpacing) {
+        case 'compact': spacing = '1.4'; break;
+        case 'relaxed': spacing = '1.8'; break;
+        default: spacing = '1.6';
+    }
+    
+    document.querySelectorAll('#resumePreview p').forEach(p => {
+        p.style.lineHeight = spacing;
+    });
+}
+
+// Margin size application
+function applyMarginSize() {
+    customizationState.marginSize = document.getElementById('marginSize').value;
+    
+    let margin;
+    switch(customizationState.marginSize) {
+        case 'small': margin = '10px'; break;
+        case 'large': margin = '30px'; break;
+        default: margin = '20px';
+    }
+    
+    document.querySelectorAll('.resume-section').forEach(section => {
+        section.style.marginBottom = margin;
+    });
+}
+
+// Border radius application
+function applyBorderRadius() {
+    customizationState.borderRadius = document.getElementById('borderRadius').value;
+    
+    let radius;
+    switch(customizationState.borderRadius) {
+        case 'none': radius = '0'; break;
+        case 'small': radius = '5px'; break;
+        case 'large': radius = '15px'; break;
+        default: radius = '10px';
+    }
+    
+    document.getElementById('resumePreview').style.borderRadius = radius;
+}
+
+// Shadow intensity application
+function applyShadowIntensity() {
+    customizationState.shadowIntensity = document.getElementById('shadowIntensity').value;
+    
+    let shadow;
+    switch(customizationState.shadowIntensity) {
+        case 'none': shadow = 'none'; break;
+        case 'light': shadow = '0 2px 10px rgba(0,0,0,0.1)'; break;
+        case 'heavy': shadow = '0 10px 30px rgba(0,0,0,0.2)'; break;
+        default: shadow = '0 5px 15px rgba(0,0,0,0.1)';
+    }
+    
+    document.getElementById('resumePreview').style.boxShadow = shadow;
+}
+
+// Show message function
+function showMessage(message, type) {
+    const messageDiv = document.getElementById('exportMessage');
+    messageDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+    setTimeout(() => messageDiv.innerHTML = '', 3000);
+}
+
+// SIMPLE AND WORKING PDF EXPORT
+function exportAsPDF() {
+    const messageDiv = document.getElementById('exportMessage');
+    messageDiv.innerHTML = '<div class="alert alert-info">🔄 Generating PDF... Please wait</div>';
+    
+    const element = document.getElementById('resumePreview');
+    
+    // Simple options that work
+    const options = {
+        margin: 10,
+        filename: 'Resume.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    html2pdf().set(options).from(element).save().then(() => {
+        messageDiv.innerHTML = '<div class="alert alert-success">✅ PDF downloaded successfully!</div>';
+        setTimeout(() => messageDiv.innerHTML = '', 3000);
+    }).catch(error => {
+        messageDiv.innerHTML = '<div class="alert alert-danger">❌ Error generating PDF</div>';
+        console.error('PDF Error:', error);
+    });
+}
+
+// SIMPLE AND WORKING DOCX EXPORT
+function exportAsDOCX() {
+    const messageDiv = document.getElementById('exportMessage');
+    messageDiv.innerHTML = '<div class="alert alert-info">🔄 Generating Word document... Please wait</div>';
+    
+    try {
+        // Get content from the actual displayed resume
+        const name = document.getElementById('resumeName').textContent || 'Resume';
+        const contactInfo = document.querySelectorAll('.contact-info');
+        const emailPhone = Array.from(contactInfo).map(el => el.textContent).join('\n');
+        
+        const summaryTitle = document.querySelector('#summarySection .section-title')?.textContent || 'Professional Summary';
+        const summaryContent = document.querySelector('#summarySection .section-content p')?.textContent || '';
+        
+        let docContent = `${name.toUpperCase()}\n`;
+        docContent += '='.repeat(50) + '\n\n';
+        docContent += `${emailPhone}\n\n`;
+        docContent += `${summaryTitle.toUpperCase()}\n`;
+        docContent += '-'.repeat(30) + '\n';
+        docContent += `${summaryContent}\n\n`;
+        
+        // Education
+        const educationSection = document.getElementById('educationSection');
+        if (educationSection) {
+            docContent += 'EDUCATION\n';
+            docContent += '-'.repeat(30) + '\n';
+            const educationItems = educationSection.querySelectorAll('.education-item');
+            educationItems.forEach(item => {
+                const degree = item.querySelector('strong')?.textContent || '';
+                const institution = item.querySelector('em')?.textContent || '';
+                const year = item.querySelector('span')?.textContent || '';
+                docContent += `• ${degree}\n  ${institution}\n  ${year}\n\n`;
+            });
+        }
+        
+        // Experience
+        const experienceSection = document.getElementById('experienceSection');
+        if (experienceSection) {
+            docContent += 'PROFESSIONAL EXPERIENCE\n';
+            docContent += '-'.repeat(30) + '\n';
+            const experienceItems = experienceSection.querySelectorAll('.experience-item');
+            experienceItems.forEach(item => {
+                const position = item.querySelector('strong')?.textContent || '';
+                const company = item.querySelector('em')?.textContent || '';
+                const duration = item.querySelector('span')?.textContent || '';
+                const description = item.querySelector('p')?.textContent || '';
+                docContent += `• ${position}\n  ${company} | ${duration}\n  ${description}\n\n`;
+            });
+        }
+        
+        // Skills
+        const skillsSection = document.getElementById('skillsSection');
+        if (skillsSection) {
+            docContent += 'SKILLS\n';
+            docContent += '-'.repeat(30) + '\n';
+            const skillItems = skillsSection.querySelectorAll('.skill-item');
+            const skills = Array.from(skillItems).map(item => item.textContent?.replace('•', '').trim());
+            docContent += skills.join(', ') + '\n\n';
+        }
+        
+        docContent += `Generated on: ${new Date().toLocaleDateString()}`;
+        
+        // Create blob and download
+        const blob = new Blob([docContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Resume.docx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        messageDiv.innerHTML = '<div class="alert alert-success">✅ Word document downloaded successfully!</div>';
+        setTimeout(() => messageDiv.innerHTML = '', 3000);
+    } catch (error) {
+        messageDiv.innerHTML = '<div class="alert alert-danger">❌ Error generating Word document</div>';
+        console.error('DOCX Error:', error);
+    }
+}
+
+// SIMPLE AND WORKING HTML EXPORT
+function exportAsHTML() {
+    const messageDiv = document.getElementById('exportMessage');
+    messageDiv.innerHTML = '<div class="alert alert-info">🔄 Generating HTML file... Please wait</div>';
+    
+    try {
+        const resumeElement = document.getElementById('resumePreview');
+        
+        // Create simple HTML with inline styles
+        const fullHTML = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Resume</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .resume { background: white; padding: 30px; max-width: 800px; margin: 0 auto; border: 1px solid #ddd; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .name { font-size: 24px; font-weight: bold; color: #2c3e50; }
+        .contact { color: #666; margin: 5px 0; }
+        .section { margin-bottom: 25px; }
+        .section-title { font-size: 18px; font-weight: bold; color: #2c3e50; border-bottom: 2px solid #2c3e50; padding-bottom: 5px; margin-bottom: 15px; }
+        .section-content { margin-left: 20px; }
+        .item { margin-bottom: 15px; }
+        .skills { display: flex; flex-wrap: wrap; gap: 10px; }
+        .skill { background: #f8f9fa; padding: 5px 10px; border-radius: 15px; border: 1px solid #dee2e6; }
+        @@media print { body { background: white; } .resume { border: none; box-shadow: none; } }
+    </style>
+</head>
+<body>
+    <div class="resume">
+        ${resumeElement.innerHTML}
+    </div>
+</body>
+</html>`;
+        
+        // Create blob and download
+        const blob = new Blob([fullHTML], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Resume.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        messageDiv.innerHTML = '<div class="alert alert-success">✅ HTML file downloaded successfully!</div>';
+        setTimeout(() => messageDiv.innerHTML = '', 3000);
+    } catch (error) {
+        messageDiv.innerHTML = '<div class="alert alert-danger">❌ Error generating HTML file</div>';
+        console.error('HTML Error:', error);
+    }
+}
+
+// SIMPLE PRINT FUNCTION
+function printResume() {
+    const messageDiv = document.getElementById('exportMessage');
+    messageDiv.innerHTML = '<div class="alert alert-info">🔄 Opening print dialog...</div>';
+    
+    const printContent = document.getElementById('resumePreview').innerHTML;
+    const originalContent = document.body.innerHTML;
+    
+    document.body.innerHTML = printContent;
+    window.print();
+    document.body.innerHTML = originalContent;
+    
+    // Reload the page to restore functionality
+    location.reload();
+}
+</script>
+
+<style>
+    /* Enhanced Theme Styles */
+    .theme-modern {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+    
+    .theme-modern .resume-preview-container {
+        background: white !important;
+        border-radius: 15px !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+    }
+    
+    .theme-professional .resume-preview-container {
+        border: 2px solid #2c3e50 !important;
+        background: #f8f9fa !important;
+    }
+    
+    .theme-creative {
+        background: #ecf0f1 !important;
+    }
+    
+    .theme-creative .resume-preview-container {
+        background: white !important;
+        border-left: 5px solid #e74c3c !important;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+    }
+
+    .theme-minimal .resume-preview-container {
+        background: white !important;
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+    }
+
+    .theme-executive .resume-preview-container {
+        background: white !important;
+        border: 2px solid #34495e !important;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    /* Skill Display Styles */
+    .skills-tags .skill-item {
+        display: inline-block;
+        background: #f8f9fa;
+        padding: 5px 12px;
+        margin: 5px;
+        border-radius: 20px;
+        border: 1px solid #dee2e6;
+    }
+
+    .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+    }
+
+    .skills-grid .skill-item {
+        background: #f8f9fa;
+        padding: 8px;
+        border-radius: 5px;
+        text-align: center;
+        border: 1px solid #dee2e6;
+    }
+
+    .skills-list .skill-item {
+        display: inline-block;
+        margin-right: 15px;
+        margin-bottom: 5px;
+    }
+
+    /* Print Styles */
+    @@media print {
+        .alert, .card, .btn, .text-center.mt-4 {
+            display: none !important;
+        }
+        .resume-preview-container {
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            column-count: 1 !important;
+            max-width: none !important;
+        }
+        body {
+            margin: 0;
+            padding: 10px;
+            background: white !important;
+        }
+    }
+</style>

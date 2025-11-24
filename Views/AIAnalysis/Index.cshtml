@@ -1,0 +1,374 @@
+@{
+    ViewData["Title"] = "AI Resume Analysis";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2 class="mb-0">🤖 AI Resume Analysis</h2>
+                    <p class="mb-0">Get targeted feedback based on specific job descriptions</p>
+                </div>
+                <div class="card-body">
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <div class="text-center mb-4">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">🎯</div>
+                        <h4>Targeted Resume Analysis</h4>
+                        <p class="text-muted">Upload your resume and the job description for personalized, AI-powered feedback</p>
+                    </div>
+
+                    <form asp-action="AnalyzeResume" method="post" enctype="multipart/form-data" id="uploadForm">
+                        <!-- Job Description Input -->
+                        <div class="mb-4">
+                            <label for="jobDescription" class="form-label fw-bold">
+                                📋 Job Description You're Applying For
+                            </label>
+                            <textarea class="form-control" id="jobDescription" name="jobDescription" 
+                                      rows="5" placeholder="Paste the job description here... 
+Example: 'We are looking for a software developer with 3+ years of experience in C# and ASP.NET. Experience with cloud platforms and agile methodologies is required.'"
+                                      required></textarea>
+                            <div class="form-text">
+                                The more detailed the job description, the better our analysis will be!
+                            </div>
+                        </div>
+
+                        <!-- Resume Upload -->
+                        <div class="mb-4">
+                            <label for="resumeFile" class="form-label fw-bold">📄 Upload Your Resume</label>
+                            <input type="file" class="form-control" id="resumeFile" name="resumeFile" 
+                                   accept=".pdf,.doc,.docx,.txt" required>
+                            <div class="form-text">
+                                Supported formats: PDF, Word (.doc, .docx), Text (.txt) - Max 2MB
+                            </div>
+                        </div>
+                        <!-- Add this line right after the resume file upload section -->
+<input type="hidden" id="resumeText" name="resumeText">
+
+                        <!-- What We Analyze -->
+                        <div class="mb-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">🎯 What We'll Analyze:</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <ul class="list-unstyled">
+                                                <li>✅ Keyword matching with job description</li>
+                                                <li>✅ Required skills alignment</li>
+                                                <li>✅ Experience relevance</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <ul class="list-unstyled">
+                                                <li>✅ Missing qualifications</li>
+                                                <li>✅ Resume structure optimization</li>
+                                                <li>✅ ATS compatibility</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                     <div class="d-grid gap-2">
+    <button type="button" class="btn btn-success btn-lg" id="processAndAnalyzeBtn">
+        <span class="spinner-border spinner-border-sm me-2 d-none" role="status" id="loadingSpinner"></span>
+        🚀 Analyze Resume Match
+    </button>
+    <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary">
+        ← Back to Home
+    </a>
+</div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">How Targeted Analysis Works</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-3 mb-3">
+                                    <div class="step-number bg-primary">1</div>
+                                    <h6>Provide Job Details</h6>
+                                    <p class="small text-muted">Paste the specific job description</p>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="step-number bg-success">2</div>
+                                    <h6>Upload Resume</h6>
+                                    <p class="small text-muted">Submit your current resume</p>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="step-number bg-info">3</div>
+                                    <h6>AI Analysis</h6>
+                                    <p class="small text-muted">We analyze the match and gaps</p>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="step-number bg-warning">4</div>
+                                    <h6>Get Recommendations</h6>
+                                    <p class="small text-muted">Receive specific improvement tips</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <!-- Include PDF.js library for PDF text extraction -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script>
+        // Set PDF.js worker path
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const analyzeBtn = document.getElementById('processAndAnalyzeBtn');
+            if (analyzeBtn) {
+                analyzeBtn.addEventListener('click', processAndAnalyze);
+            }
+        });
+
+        async function processAndAnalyze() {
+            const fileInput = document.getElementById('resumeFile');
+            const jobDescription = document.getElementById('jobDescription');
+            const btn = document.getElementById('processAndAnalyzeBtn');
+            
+            // Create spinner if it doesn't exist
+            let spinner = document.getElementById('loadingSpinner');
+            if (!spinner) {
+                spinner = document.createElement('span');
+                spinner.id = 'loadingSpinner';
+                spinner.className = 'spinner-border spinner-border-sm me-2 d-none';
+                spinner.setAttribute('role', 'status');
+                btn.prepend(spinner);
+            }
+
+            if (!fileInput || !fileInput.files[0]) {
+                alert('Please select a resume file.');
+                return;
+            }
+
+            if (!jobDescription || !jobDescription.value.trim()) {
+                alert('Please provide a job description.');
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                spinner.classList.remove('d-none');
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Processing File...';
+
+                const file = fileInput.files[0];
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                let extractedText = '';
+
+                console.log('Processing file:', file.name, 'Type:', fileExtension);
+
+                // Process different file types
+                if (fileExtension === 'txt') {
+                    extractedText = await readTextFile(file);
+                } else if (fileExtension === 'pdf') {
+                    extractedText = await extractTextFromPDF(file);
+                } else if (fileExtension === 'doc' || fileExtension === 'docx') {
+                    extractedText = await extractTextFromWord(file);
+                } else {
+                    throw new Error('Unsupported file format. Please use PDF, Word, or Text files.');
+                }
+
+                console.log('Extracted text length:', extractedText.length);
+
+                if (!extractedText || extractedText.trim().length < 50) {
+                    throw new Error('Could not extract enough text from the file. The file might be corrupted, scanned (image-based), or empty. Please try a different file.');
+                }
+
+                // Set the extracted text in hidden field
+                const resumeTextInput = document.getElementById('resumeText');
+                if (resumeTextInput) {
+                    resumeTextInput.value = extractedText;
+                }
+
+                // Submit the form
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Analyzing with AI...';
+                document.getElementById('uploadForm').submit();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+                resetButton(btn);
+            }
+        }
+
+        function resetButton(btn) {
+            btn.disabled = false;
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) {
+                spinner.classList.add('d-none');
+            }
+            btn.innerHTML = '🚀 Analyze Resume Match';
+        }
+
+        // Read text file
+        function readTextFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                reader.onerror = function() {
+                    reject(new Error('Failed to read text file'));
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        // Extract text from PDF using PDF.js
+        async function extractTextFromPDF(file) {
+            return new Promise((resolve, reject) => {
+                const fileReader = new FileReader();
+                fileReader.onload = function() {
+                    try {
+                        const typedarray = new Uint8Array(this.result);
+                        
+                        pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+                            let text = '';
+                            const numPages = pdf.numPages;
+                            let pagesProcessed = 0;
+
+                            // Process each page
+                            for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                                pdf.getPage(pageNum).then(function(page) {
+                                    return page.getTextContent();
+                                }).then(function(textContent) {
+                                    text += textContent.items.map(item => item.str).join(' ') + '\n';
+                                    pagesProcessed++;
+                                    
+                                    if (pagesProcessed === numPages) {
+                                        resolve(text);
+                                    }
+                                }).catch(reject);
+                            }
+                        }).catch(reject);
+                    } catch (error) {
+                        reject(new Error('Failed to process PDF file: ' + error.message));
+                    }
+                };
+                fileReader.onerror = function() {
+                    reject(new Error('Failed to read PDF file'));
+                };
+                fileReader.readAsArrayBuffer(file);
+            });
+        }
+
+        // Extract text from Word documents (basic text extraction)
+        async function extractTextFromWord(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        // For .docx files, we can read as zip and extract document.xml
+                        // This is a simplified approach that works for basic text
+                        const arrayBuffer = e.target.result;
+                        
+                        // Try to extract text from the binary data
+                        // This is a basic approach - for production you might want a proper library
+                        const textDecoder = new TextDecoder('utf-8');
+                        let text = textDecoder.decode(arrayBuffer);
+                        
+                        // Clean up the text
+                        text = text.replace(/[^\x20-\x7E\n\r\t]/g, ' ') // Remove non-printable chars
+                                 .replace(/\s+/g, ' ')                  // Normalize whitespace
+                                 .trim();
+                        
+                        if (text.length < 50) {
+                            // If we couldn't extract much text, provide a fallback
+                            text = "Word document content extracted. For better analysis, consider saving as PDF or text file.";
+                        }
+                        
+                        resolve(text);
+                    } catch (error) {
+                        // Fallback: return file content as text
+                        resolve('Document content from: ' + file.name);
+                    }
+                };
+                reader.onerror = function() {
+                    reject(new Error('Failed to read Word document'));
+                };
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // Character counter for job description
+        document.addEventListener('DOMContentLoaded', function() {
+            const jobDescInput = document.getElementById('jobDescription');
+            if (jobDescInput) {
+                jobDescInput.addEventListener('input', function() {
+                    const charCount = this.value.length;
+                    let counter = document.getElementById('charCount');
+                    
+                    if (!counter) {
+                        counter = document.createElement('div');
+                        counter.id = 'charCount';
+                        counter.className = 'form-text text-end mt-1';
+                        this.parentNode.appendChild(counter);
+                    }
+                    
+                    counter.textContent = `${charCount} characters`;
+                    
+                    // Color code based on length
+                    if (charCount < 50) {
+                        counter.className = 'form-text text-end mt-1 text-danger';
+                    } else if (charCount < 100) {
+                        counter.className = 'form-text text-end mt-1 text-warning';
+                    } else {
+                        counter.className = 'form-text text-end mt-1 text-success';
+                    }
+                });
+
+                // Trigger initial count
+                jobDescInput.dispatchEvent(new Event('input'));
+            }
+        });
+    </script>
+}
+<style>
+    .step-number {
+        width: 40px;
+        height: 40px;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px auto;
+        font-weight: bold;
+    }
+</style>
+}
+
+<style>
+    .step-number {
+        width: 40px;
+        height: 40px;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px auto;
+        font-weight: bold;
+    }
+</style>

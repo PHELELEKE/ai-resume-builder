@@ -1,0 +1,100 @@
+@{
+    ViewData["Title"] = "Choose Template";
+}
+
+<div class="container">
+    <div class="text-center mb-5">
+        <h1>Choose Your Resume Template</h1>
+        <p class="lead">Select a template that matches your style and industry</p>
+    </div>
+
+    <div class="row">
+        <!-- Professional Template -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 template-card">
+                <div class="card-header text-center" style="background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); color: white; padding: 20px;">
+                    <h5>Professional</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="template-preview mb-3" style="height: 200px; background: #f8f9fa; border: 2px dashed #dee2e6; display: flex; align-items: center; justify-content: center;">
+                        <div style="text-align: left; padding: 15px;">
+                            <div style="font-weight: bold; color: #2c3e50;">JOHN DOE</div>
+                            <div style="color: #7f8c8d; font-size: 14px;">Software Developer</div>
+                            <hr style="margin: 8px 0;">
+                            <div style="font-size: 12px; color: #666;">Clean • Corporate • Professional</div>
+                        </div>
+                    </div>
+                    <p class="text-muted">Perfect for corporate jobs and traditional industries</p>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="@Url.Action("Create", "Resume", new { template = "Professional" })" class="btn btn-primary btn-block">Choose Professional</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modern Template -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 template-card">
+                <div class="card-header text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px;">
+                    <h5>Modern</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="template-preview mb-3" style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center;">
+                        <div style="text-align: center; padding: 15px;">
+                            <div style="font-weight: bold; font-size: 18px;">JOHN DOE</div>
+                            <div style="opacity: 0.9;">Software Developer</div>
+                            <div style="margin-top: 10px; background: rgba(255,255,255,0.2); padding: 5px; border-radius: 5px; font-size: 12px;">Modern • Creative • Colorful</div>
+                        </div>
+                    </div>
+                    <p class="text-muted">Great for creative industries and tech companies</p>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="@Url.Action("Create", "Resume", new { template = "Modern" })" class="btn btn-primary btn-block">Choose Modern</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Classic Template -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 template-card">
+                <div class="card-header text-center" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px;">
+                    <h5>Classic</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="template-preview mb-3" style="height: 200px; background: #f8f9fa; border: 2px dashed #dee2e6; display: flex; align-items: center; justify-content: center;">
+                        <div style="text-align: left; padding: 15px; width: 100%;">
+                            <div style="font-weight: bold; color: #2c3e50; text-transform: uppercase; letter-spacing: 1px;">JOHN DOE</div>
+                            <div style="border-bottom: 2px solid #2c3e50; width: 50px; margin: 5px 0;"></div>
+                            <div style="color: #7f8c8d; font-size: 13px;">Software Developer</div>
+                            <div style="font-size: 11px; color: #666; margin-top: 10px;">Traditional • Formal • Timeless</div>
+                        </div>
+                    </div>
+                    <p class="text-muted">Traditional layout for formal and academic positions</p>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="@Url.Action("Create", "Resume", new { template = "Classic" })" class="btn btn-primary btn-block">Choose Classic</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Back to Home</a>
+    </div>
+</div>
+
+<style>
+    .template-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .template-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .template-preview {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+</style>
