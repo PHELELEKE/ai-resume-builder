@@ -1,0 +1,63 @@
+using AIResumeBuilder.Models;
+
+namespace AIResumeBuilder.Services
+{
+    public class ResumeService : IResumeService
+    {
+        private readonly List<Resume> _resumes = new();
+        private int _nextId = 1;
+
+        public Task<int> SaveResumeAsync(Resume resume)
+        {
+            if (resume.Id == 0)
+            {
+                resume.Id = _nextId++;
+                _resumes.Add(resume);
+            }
+            else
+            {
+                var existing = _resumes.FirstOrDefault(r => r.Id == resume.Id);
+                if (existing != null)
+                {
+                    // Update existing resume
+                    existing.FullName = resume.FullName;
+                    existing.Email = resume.Email;
+                    existing.Phone = resume.Phone;
+                    existing.TargetJobTitle = resume.TargetJobTitle;
+                    existing.Summary = resume.Summary;
+                    existing.Educations = resume.Educations;
+                    existing.Experiences = resume.Experiences;
+                    existing.Skills = resume.Skills;
+                }
+            }
+            
+            return Task.FromResult(resume.Id);
+        }
+
+        public Task<Resume?> GetResumeAsync(int id)
+        {
+            var resume = _resumes.FirstOrDefault(r => r.Id == id);
+            return Task.FromResult(resume);
+        }
+
+        public Task<string> GenerateAIContentAsync(string prompt)
+        {
+            // Mock AI content for now
+            var aiResponse = $"""
+                🤖 AI-Generated Content:
+                
+                Based on your input: "{prompt}"
+                
+                Here's an improved version:
+                
+                "Experienced professional with strong skills in project management and team leadership. 
+                Proven track record of delivering successful projects on time and within budget. 
+                Excellent communication skills and ability to work collaboratively in fast-paced environments."
+                
+                [Note: This is mock AI content. Integrate with real AI API for actual content generation.]
+                """;
+            
+            return Task.FromResult(aiResponse);
+        }
+    }
+}

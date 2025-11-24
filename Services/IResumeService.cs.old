@@ -1,0 +1,11 @@
+using AIResumeBuilder.Models;
+
+namespace AIResumeBuilder.Services
+{
+    public interface IResumeService
+    {
+        Task<int> SaveResumeAsync(Resume resume);
+        Task<Resume?> GetResumeAsync(int id);
+        Task<string> GenerateAIContentAsync(string prompt);
+    }
+}
