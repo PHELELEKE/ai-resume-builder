@@ -14,7 +14,7 @@ public class HomeController : Controller
     public IActionResult Index()
     {
         // REDIRECT to login instead of looking for Index view
-        return Redirect("/Account/Login");
+         return View(); 
     }
 
     public IActionResult Privacy()
@@ -30,3 +30,4 @@ public class HomeController : Controller
         return Content("An error occurred. Please go to the login page and try again.");
     }
 }
+
