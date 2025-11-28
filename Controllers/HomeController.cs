@@ -1,6 +1,4 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using AIResumeBuilder.Models;
 
 namespace AIResumeBuilder.Controllers;
 
@@ -15,17 +13,20 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        return View();
+        // REDIRECT to login instead of looking for Index view
+        return Redirect("/Account/Login");
     }
 
     public IActionResult Privacy()
     {
-        return View();
+        // Return simple content instead of looking for Privacy view
+        return Content("Privacy Policy - AI Resume Builder");
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        // Return simple error message instead of looking for Error view
+        return Content("An error occurred. Please go to the login page and try again.");
     }
 }
