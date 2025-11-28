@@ -5,24 +5,10 @@ using AIResumeBuilder.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-// FLEXIBLE DATABASE SETUP - Try SQL Server, fallback to SQLite
-if (!string.IsNullOrEmpty(connectionString) && connectionString.Contains("Server="))
-{
-    // Use SQL Server if connection string is provided
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(connectionString));
-    Console.WriteLine("✅ Using SQL Server database");
-}
-else
-{
-    // Fallback to SQLite for development/Railway without database
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlite("Data Source=app.db"));
-    Console.WriteLine("⚠️ Using SQLite fallback database");
-}
+// SIMPLE DATABASE SETUP - ONLY SQLite
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite("Data Source=app.db"));
+Console.WriteLine("✅ Using SQLite database - no connection issues!");
 
 // Add Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => 
@@ -55,42 +41,19 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// IMPROVED DATABASE INITIALIZATION
+// SIMPLE DATABASE SETUP
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
-        
-        // Try to apply migrations first (for SQL Server)
-        try 
-        {
-            context.Database.Migrate();
-            Console.WriteLine("✅ Database migrations applied successfully!");
-        }
-        catch (Exception migrateEx)
-        {
-            // If migrations fail, ensure database exists
-            Console.WriteLine($"⚠️ Migrations failed, ensuring database exists: {migrateEx.Message}");
-            context.Database.EnsureCreated();
-            Console.WriteLine("✅ Database ensured created!");
-        }
-        
-        // Test database connection
-        if (context.Database.CanConnect())
-        {
-            Console.WriteLine("✅ Database connection successful!");
-        }
-        else
-        {
-            Console.WriteLine("❌ Database connection failed!");
-        }
+        context.Database.EnsureCreated();
+        Console.WriteLine("✅ Database ready!");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"❌ Database initialization error: {ex.Message}");
-        // Don't crash the app - continue without database
+        Console.WriteLine($"⚠️ Database warning: {ex.Message}");
     }
 }
 
