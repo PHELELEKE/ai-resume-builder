@@ -22,9 +22,7 @@
     </li>
     @if (User.Identity.IsAuthenticated)
     {
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="" asp-controller="Resume" asp-action="ChooseTemplate">Create Resume</a>
-        </li>
+        
         <li class="nav-item">
             <a class="nav-link text-dark" asp-area="" asp-controller="Resume" asp-action="MyResumes">My Resumes</a>
         </li>
@@ -75,4 +73,5 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>
