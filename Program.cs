@@ -7,8 +7,22 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+
+// FLEXIBLE DATABASE SETUP - Try SQL Server, fallback to SQLite
+if (!string.IsNullOrEmpty(connectionString) && connectionString.Contains("Server="))
+{
+    // Use SQL Server if connection string is provided
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(connectionString));
+    Console.WriteLine("✅ Using SQL Server database");
+}
+else
+{
+    // Fallback to SQLite for development/Railway without database
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlite("Data Source=app.db"));
+    Console.WriteLine("⚠️ Using SQLite fallback database");
+}
 
 // Add Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => 
@@ -41,8 +55,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Create database and tables automatically (SINGLE VERSION)
-// Create database and tables automatically
+// IMPROVED DATABASE INITIALIZATION
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -50,29 +63,40 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
         
-        // Simple check - if database doesn't exist, create it
-        if (!context.Database.CanConnect())
+        // Try to apply migrations first (for SQL Server)
+        try 
         {
-            Console.WriteLine("🔄 Creating database...");
+            context.Database.Migrate();
+            Console.WriteLine("✅ Database migrations applied successfully!");
+        }
+        catch (Exception migrateEx)
+        {
+            // If migrations fail, ensure database exists
+            Console.WriteLine($"⚠️ Migrations failed, ensuring database exists: {migrateEx.Message}");
             context.Database.EnsureCreated();
-            Console.WriteLine("✅ Database created successfully!");
+            Console.WriteLine("✅ Database ensured created!");
+        }
+        
+        // Test database connection
+        if (context.Database.CanConnect())
+        {
+            Console.WriteLine("✅ Database connection successful!");
         }
         else
         {
-            Console.WriteLine("✅ Database already exists!");
+            Console.WriteLine("❌ Database connection failed!");
         }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"⚠️ Database warning: {ex.Message}");
-        // Don't stop the app for database issues
+        Console.WriteLine($"❌ Database initialization error: {ex.Message}");
+        // Don't crash the app - continue without database
     }
 }
 
 app.MapControllerRoute(
     name: "default",
- pattern: "{controller=Account}/{action=Login}/{id?}");
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 app.MapRazorPages();
-
 
 app.Run();
