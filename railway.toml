@@ -2,7 +2,7 @@
 builder = "NIXPACKS"
 
 [build.environment]
-DOTNET_VERSION = "8.0"
+DOTNET_VERSION = "6.0"
 
 [deploy]
 startCommand = "dotnet AIResumeBuilder.dll --urls http://0.0.0.0:${PORT}"
