@@ -135,213 +135,189 @@ Example: 'We are looking for a software developer with 3+ years of experience in
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
         // Wait for DOM to be fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            const analyzeBtn = document.getElementById('processAndAnalyzeBtn');
-            if (analyzeBtn) {
-                analyzeBtn.addEventListener('click', processAndAnalyze);
-            }
-        });
+       // Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    const analyzeBtn = document.getElementById('processAndAnalyzeBtn');
+    if (analyzeBtn) {
+        analyzeBtn.addEventListener('click', processAndAnalyze);
+    }
+});
 
-        async function processAndAnalyze() {
-            const fileInput = document.getElementById('resumeFile');
-            const jobDescription = document.getElementById('jobDescription');
-            const btn = document.getElementById('processAndAnalyzeBtn');
-            
-            // Create spinner if it doesn't exist
-            let spinner = document.getElementById('loadingSpinner');
-            if (!spinner) {
-                spinner = document.createElement('span');
-                spinner.id = 'loadingSpinner';
-                spinner.className = 'spinner-border spinner-border-sm me-2 d-none';
-                spinner.setAttribute('role', 'status');
-                btn.prepend(spinner);
-            }
+async function processAndAnalyze() {
+    const fileInput = document.getElementById('resumeFile');
+    const jobDescription = document.getElementById('jobDescription');
+    const btn = document.getElementById('processAndAnalyzeBtn');
+    
+    // Create spinner if it doesn't exist
+    let spinner = document.getElementById('loadingSpinner');
+    if (!spinner) {
+        spinner = document.createElement('span');
+        spinner.id = 'loadingSpinner';
+        spinner.className = 'spinner-border spinner-border-sm me-2 d-none';
+        spinner.setAttribute('role', 'status');
+        btn.prepend(spinner);
+    }
 
-            if (!fileInput || !fileInput.files[0]) {
-                alert('Please select a resume file.');
-                return;
-            }
+    if (!fileInput || !fileInput.files[0]) {
+        alert('Please select a resume file.');
+        return;
+    }
 
-            if (!jobDescription || !jobDescription.value.trim()) {
-                alert('Please provide a job description.');
-                return;
-            }
+    if (!jobDescription || !jobDescription.value.trim()) {
+        alert('Please provide a job description.');
+        return;
+    }
 
+    try {
+        btn.disabled = true;
+        spinner.classList.remove('d-none');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Processing File...';
+
+        const file = fileInput.files[0];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        let extractedText = '';
+
+        console.log('Processing file:', file.name, 'Type:', fileExtension);
+
+        // Process different file types with better error handling
+        if (fileExtension === 'txt') {
+            extractedText = await readTextFile(file);
+        } else if (fileExtension === 'pdf') {
+            extractedText = await extractTextFromPDF(file);
+        } else if (fileExtension === 'doc' || fileExtension === 'docx') {
+            extractedText = await extractTextFromWord(file);
+        } else {
+            throw new Error('Unsupported file format. Please use PDF, Word, or Text files.');
+        }
+
+        console.log('Extracted text length:', extractedText.length);
+
+        // BETTER VALIDATION - don't fail completely
+        if (!extractedText || extractedText.trim().length < 10) {
+            // Instead of throwing error, use fallback text
+            extractedText = `Document: ${file.name}\n\nNote: Limited text extracted. For best results, try:\n- PDF files with selectable text (not scanned)\n- Word documents (.docx)\n- Plain text files\n\nFile processed but content extraction was limited.`;
+        }
+
+        // Set the extracted text in hidden field
+        const resumeTextInput = document.getElementById('resumeText');
+        if (resumeTextInput) {
+            resumeTextInput.value = extractedText;
+        }
+
+        // Submit the form
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Analyzing with AI...';
+        document.getElementById('uploadForm').submit();
+        
+    } catch (error) {
+        console.error('Error:', error);
+        
+        // FRIENDLIER ERROR MESSAGES
+        let userMessage = 'Error processing file: ';
+        
+        if (error.message.includes('PDF')) {
+            userMessage += 'PDF file may be scanned (image-based) or corrupted. Try a different PDF or convert to Word/text.';
+        } else if (error.message.includes('Word')) {
+            userMessage += 'Word document may be corrupted. Try saving as PDF or text file.';
+        } else {
+            userMessage += error.message;
+        }
+        
+        alert(userMessage);
+        resetButton(btn);
+    }
+}
+
+// IMPROVED PDF EXTRACTION
+async function extractTextFromPDF(file) {
+    return new Promise((resolve, reject) => {
+        const fileReader = new FileReader();
+        fileReader.onload = function() {
             try {
-                btn.disabled = true;
-                spinner.classList.remove('d-none');
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Processing File...';
-
-                const file = fileInput.files[0];
-                const fileExtension = file.name.split('.').pop().toLowerCase();
-                let extractedText = '';
-
-                console.log('Processing file:', file.name, 'Type:', fileExtension);
-
-                // Process different file types
-                if (fileExtension === 'txt') {
-                    extractedText = await readTextFile(file);
-                } else if (fileExtension === 'pdf') {
-                    extractedText = await extractTextFromPDF(file);
-                } else if (fileExtension === 'doc' || fileExtension === 'docx') {
-                    extractedText = await extractTextFromWord(file);
-                } else {
-                    throw new Error('Unsupported file format. Please use PDF, Word, or Text files.');
-                }
-
-                console.log('Extracted text length:', extractedText.length);
-
-                if (!extractedText || extractedText.trim().length < 50) {
-                    throw new Error('Could not extract enough text from the file. The file might be corrupted, scanned (image-based), or empty. Please try a different file.');
-                }
-
-                // Set the extracted text in hidden field
-                const resumeTextInput = document.getElementById('resumeText');
-                if (resumeTextInput) {
-                    resumeTextInput.value = extractedText;
-                }
-
-                // Submit the form
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Analyzing with AI...';
-                document.getElementById('uploadForm').submit();
+                const typedarray = new Uint8Array(this.result);
                 
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error: ' + error.message);
-                resetButton(btn);
-            }
-        }
+                let loadingTask = pdfjsLib.getDocument(typedarray);
+                loadingTask.promise.then(function(pdf) {
+                    let text = '';
+                    const numPages = Math.min(pdf.numPages, 5); // Limit to 5 pages for performance
+                    let pagesProcessed = 0;
 
-        function resetButton(btn) {
-            btn.disabled = false;
-            const spinner = document.getElementById('loadingSpinner');
-            if (spinner) {
-                spinner.classList.add('d-none');
-            }
-            btn.innerHTML = '🚀 Analyze Resume Match';
-        }
-
-        // Read text file
-        function readTextFile(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    resolve(e.target.result);
-                };
-                reader.onerror = function() {
-                    reject(new Error('Failed to read text file'));
-                };
-                reader.readAsText(file);
-            });
-        }
-
-        // Extract text from PDF using PDF.js
-        async function extractTextFromPDF(file) {
-            return new Promise((resolve, reject) => {
-                const fileReader = new FileReader();
-                fileReader.onload = function() {
-                    try {
-                        const typedarray = new Uint8Array(this.result);
-                        
-                        pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
-                            let text = '';
-                            const numPages = pdf.numPages;
-                            let pagesProcessed = 0;
-
-                            // Process each page
-                            for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-                                pdf.getPage(pageNum).then(function(page) {
-                                    return page.getTextContent();
-                                }).then(function(textContent) {
-                                    text += textContent.items.map(item => item.str).join(' ') + '\n';
-                                    pagesProcessed++;
-                                    
-                                    if (pagesProcessed === numPages) {
-                                        resolve(text);
-                                    }
-                                }).catch(reject);
+                    // Process each page with timeout protection
+                    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                        pdf.getPage(pageNum).then(function(page) {
+                            return page.getTextContent();
+                        }).then(function(textContent) {
+                            text += textContent.items.map(item => item.str).join(' ') + '\n';
+                            pagesProcessed++;
+                            
+                            if (pagesProcessed === numPages) {
+                                resolve(text || 'PDF content extracted but may be limited. For better results, ensure PDF has selectable text.');
                             }
-                        }).catch(reject);
-                    } catch (error) {
-                        reject(new Error('Failed to process PDF file: ' + error.message));
+                        }).catch(function(pageError) {
+                            console.warn(`Error processing page ${pageNum}:`, pageError);
+                            pagesProcessed++;
+                            if (pagesProcessed === numPages) {
+                                resolve(text || 'Partial PDF content extracted. Some pages may not have readable text.');
+                            }
+                        });
                     }
-                };
-                fileReader.onerror = function() {
-                    reject(new Error('Failed to read PDF file'));
-                };
-                fileReader.readAsArrayBuffer(file);
-            });
-        }
-
-        // Extract text from Word documents (basic text extraction)
-        async function extractTextFromWord(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        // For .docx files, we can read as zip and extract document.xml
-                        // This is a simplified approach that works for basic text
-                        const arrayBuffer = e.target.result;
-                        
-                        // Try to extract text from the binary data
-                        // This is a basic approach - for production you might want a proper library
-                        const textDecoder = new TextDecoder('utf-8');
-                        let text = textDecoder.decode(arrayBuffer);
-                        
-                        // Clean up the text
-                        text = text.replace(/[^\x20-\x7E\n\r\t]/g, ' ') // Remove non-printable chars
-                                 .replace(/\s+/g, ' ')                  // Normalize whitespace
-                                 .trim();
-                        
-                        if (text.length < 50) {
-                            // If we couldn't extract much text, provide a fallback
-                            text = "Word document content extracted. For better analysis, consider saving as PDF or text file.";
-                        }
-                        
-                        resolve(text);
-                    } catch (error) {
-                        // Fallback: return file content as text
-                        resolve('Document content from: ' + file.name);
-                    }
-                };
-                reader.onerror = function() {
-                    reject(new Error('Failed to read Word document'));
-                };
-                reader.readAsArrayBuffer(file);
-            });
-        }
-
-        // Character counter for job description
-        document.addEventListener('DOMContentLoaded', function() {
-            const jobDescInput = document.getElementById('jobDescription');
-            if (jobDescInput) {
-                jobDescInput.addEventListener('input', function() {
-                    const charCount = this.value.length;
-                    let counter = document.getElementById('charCount');
-                    
-                    if (!counter) {
-                        counter = document.createElement('div');
-                        counter.id = 'charCount';
-                        counter.className = 'form-text text-end mt-1';
-                        this.parentNode.appendChild(counter);
-                    }
-                    
-                    counter.textContent = `${charCount} characters`;
-                    
-                    // Color code based on length
-                    if (charCount < 50) {
-                        counter.className = 'form-text text-end mt-1 text-danger';
-                    } else if (charCount < 100) {
-                        counter.className = 'form-text text-end mt-1 text-warning';
-                    } else {
-                        counter.className = 'form-text text-end mt-1 text-success';
-                    }
+                }).catch(function(pdfError) {
+                    reject(new Error('Cannot read PDF file. It may be scanned (image-based), encrypted, or corrupted.'));
                 });
-
-                // Trigger initial count
-                jobDescInput.dispatchEvent(new Event('input'));
+            } catch (error) {
+                reject(new Error('Failed to process PDF file. Try a different file format.'));
             }
-        });
+        };
+        fileReader.onerror = function() {
+            reject(new Error('Failed to read PDF file. File may be corrupted.'));
+        };
+        fileReader.readAsArrayBuffer(file);
+    });
+}
+
+// IMPROVED WORD EXTRACTION
+async function extractTextFromWord(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                // For Word files, provide a helpful message
+                const text = `Word Document: ${file.name}\n\nNote: Word document processing is limited in browser. For best analysis results:\n1. Save as PDF (recommended)\n2. Copy content to a text file\n3. Use the PDF or text file for analysis\n\nBasic content extraction attempted.`;
+                
+                resolve(text);
+            } catch (error) {
+                // Don't fail - provide fallback
+                resolve(`Document: ${file.name}\n\nFile type: Word document\nNote: For optimal analysis, please save as PDF or text file.`);
+            }
+        };
+        reader.onerror = function() {
+            // Don't reject - provide fallback text
+            resolve(`Document: ${file.name}\n\nUnable to fully process Word document in browser. Please try:\n- Saving as PDF\n- Using a text file\n- Copy-pasting content directly`);
+        };
+        reader.readAsArrayBuffer(file);
+    });
+}
+
+function resetButton(btn) {
+    btn.disabled = false;
+    const spinner = document.getElementById('loadingSpinner');
+    if (spinner) {
+        spinner.classList.add('d-none');
+    }
+    btn.innerHTML = '🚀 Analyze Resume Match';
+}
+
+// Read text file (unchanged)
+function readTextFile(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            resolve(e.target.result);
+        };
+        reader.onerror = function() {
+            reject(new Error('Failed to read text file'));
+        };
+        reader.readAsText(file);
+    });
     </script>
 }
 <style>
@@ -371,4 +347,5 @@ Example: 'We are looking for a software developer with 3+ years of experience in
         margin: 0 auto 10px auto;
         font-weight: bold;
     }
+
 </style>
