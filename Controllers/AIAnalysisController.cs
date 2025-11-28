@@ -79,7 +79,7 @@ namespace AIResumeBuilder.Controllers
                 // Clean and normalize the resume text
                 resumeText = CleanResumeText(resumeText);
 
-                if (string.IsNullOrWhiteSpace(resumeText) || resumeText.Length < 50)
+                if (string.IsNullOrWhiteSpace(resumeText))
                 {
                     TempData["Error"] = "Resume file appears to be empty or too short. Please try a different file.";
                     return RedirectToAction("Index");
@@ -567,4 +567,5 @@ RESPOND WITH JSON ONLY:
             };
         }
     }
+
 }
