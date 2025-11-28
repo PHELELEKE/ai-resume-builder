@@ -5,4 +5,4 @@ builder = "NIXPACKS"
 DOTNET_VERSION = "6.0"
 
 [deploy]
-startCommand = "dotnet AIResumeBuilder.dll --urls http://0.0.0.0:${PORT}"
+startCommand = "dotnet out/AIResumeBuilder.dll --urls http://0.0.0.0:${PORT}"
