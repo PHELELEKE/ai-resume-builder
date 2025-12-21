@@ -1,57 +1,34 @@
-using MGSINTERNETS.Models;
-using MGSINTERNETS.Services;
-using Microsoft.AspNetCore.Localization;
-using Microsoft.EntityFrameworkCore; // Make sure this is included
-using System.Globalization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using AIResumeBuilder.Data;
+using AIResumeBuilder.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-
-// Add PDF service
-builder.Services.AddScoped<PdfService>();
-
-// Add localization for South Africa (ZAR)
-builder.Services.Configure<RequestLocalizationOptions>(options =>
-{
-    var supportedCultures = new[]
-    {
-        new CultureInfo("en-ZA")
-    };
-    options.DefaultRequestCulture = new RequestCulture("en-ZA");
-    options.SupportedCultures = supportedCultures;
-    options.SupportedUICultures = supportedCultures;
-});
-
-// Add Query Performance Service
-builder.Services.AddSingleton<QueryPerformanceService>();
-builder.Services.AddSingleton<IObserver<KeyValuePair<string, object>>>(sp =>
-    sp.GetRequiredService<QueryPerformanceService>());
-
-// Add Session
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-
-// Add SMS Service
-builder.Services.AddScoped<ISmsService, MockSmsService>();
-
-// ✅ SIMPLE DATABASE SETUP - ONLY SQLite (Like your working app)
+// SIMPLE DATABASE SETUP - ONLY SQLite
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite("Data Source=mgsinternets.db"));
+    options.UseSqlite("Data Source=app.db"));
 Console.WriteLine("✅ Using SQLite database - no connection issues!");
 
-// Add HttpContextAccessor
-builder.Services.AddHttpContextAccessor();
+// Add Identity
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => 
+{
+    options.SignIn.RequireConfirmedAccount = false;
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 6;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
-// Configure pipeline
+// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -61,11 +38,10 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
-app.UseSession();
-app.UseRequestLocalization();
 
-// ✅ SIMPLE DATABASE SETUP (Like your working app)
+// SIMPLE DATABASE SETUP
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -74,9 +50,6 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<ApplicationDbContext>();
         context.Database.EnsureCreated();
         Console.WriteLine("✅ Database ready!");
-        
-        // Optional: Seed data if needed
-        // DataSeeder.Initialize(context);
     }
     catch (Exception ex)
     {
@@ -84,14 +57,9 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Routes
-app.MapControllerRoute(
-    name: "reset",
-    pattern: "reset/{token}",
-    defaults: new { controller = "Users", action = "ResetPassword" });
-
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapRazorPages();
 
 app.Run();
